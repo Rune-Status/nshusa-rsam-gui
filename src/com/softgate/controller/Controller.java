@@ -544,9 +544,16 @@ public final class Controller implements Initializable {
 			return;
 		}
 
-		final int selectedEntry = tableView.getSelectionModel().getSelectedIndex();
+		final int selectedEntryIndex = tableView.getSelectionModel().getSelectedIndex();
+		
+		final FileStoreEntryWrapper selectedEntry = tableView.getSelectionModel().getSelectedItem();
 
-		if (selectedEntry == -1) {
+		if (selectedEntryIndex == -1 || selectedEntry == null) {
+			return;
+		}
+		
+		if (selectedEntry.getSize().equalsIgnoreCase("0")) {
+			Dialogue.showWarning("This file is empty.");
 			return;
 		}
 
@@ -562,17 +569,14 @@ public final class Controller implements Initializable {
 			protected Boolean call() throws Exception {
 				final FileStore store = cache.getStore(selectedIndex);
 
-				byte[] data = store.readFile(selectedEntry);
+				byte[] fileData = store.readFile(selectedEntryIndex);			
 
-				if (data == null) {
+				if (fileData == null) {
 					return false;
 				}
 
-				final boolean gzipped = FileUtils.isCompressed(data);
-
-				try (FileOutputStream fos = new FileOutputStream(new File(selectedDirectory, selectedIndex > 0
-						? gzipped ? selectedEntry + ".gz" : selectedEntry + ".dat" : selectedEntry + ".jag"))) {
-					fos.write(data);
+				try (FileOutputStream fos = new FileOutputStream(new File(selectedDirectory, selectedEntry.getName() + "." + selectedEntry.getExtension()))) {
+					fos.write(fileData);
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
