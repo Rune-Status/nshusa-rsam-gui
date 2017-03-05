@@ -1,0 +1,16 @@
+group = 'rsam'
+version = '1.00'
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
+
+sourceSets {
+  main.java.srcDirs = ['src']
+  main.resources.srcDirs = ['resources']
+}

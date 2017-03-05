@@ -1,0 +1,282 @@
+* {
+	-fx-font-size: 11pt;
+	-fx-font-family: "Segoe UI Semibold";
+}
+
+.root {
+	-fx-background-color : #121212;	
+}
+
+.button {
+	-fx-background-color: transparent;
+}
+
+#addEntryBtn {
+	-fx-graphic: url('images/add_icon.png');
+}
+
+#addEntryBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#addEntryBtn:pressed {
+	-fx-background-color: #1F1F1F;
+}
+
+#deleteEntryBtn {
+	-fx-graphic: url('images/delete_icon.png');
+}
+
+#deleteEntryBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#deleteEntryBtn:pressed {
+	-fx-background-color: #1F1F1F;
+}
+
+#loadBtn {
+	-fx-graphic: url('images/load_icon.png');
+}
+
+#loadBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#loadBtn:pressed {
+	-fx-background-color: #1F1F1F;
+}
+
+#saveBtn {
+	-fx-graphic: url('images/save_icon.png');
+}
+
+#saveBtn:hover {
+    -fx-background-color: #292929;
+}
+
+#saveBtn:pressed {
+    -fx-background-color: #1F1F1F;
+}
+
+#clearBtn {
+	-fx-graphic: url('images/clear_icon.png');
+}
+
+#clearBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#clearBtn:pressed {
+	-fx-background-color: #1F1F1F;
+}
+
+#minBtn {
+	-fx-graphic: url('images/minimize_icon_light.png');
+}
+
+#minBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#minBtn:pressed {
+    -fx-background-color: #1F1F1F;
+}
+
+#maxBtn {
+	-fx-graphic: url('images/maximize_icon_light.png');
+}
+
+#maxBtn:pressed {
+    -fx-background-color: #1F1F1F;
+}
+
+#closeBtn {
+	-fx-graphic: url('images/close_icon_light.png');
+}
+
+#closeBtn:hover {
+	-fx-background-color: #E81123;
+}
+
+#closeBtn:pressed {
+	-fx-background-color: #F1707A;
+}
+
+.titled-pane * {
+	-fx-background-color: transparent;
+}
+
+.titled-pane {
+	-fx-text-fill: white;
+}
+
+.titled-pane > .title 
+{
+	-fx-background-color: #2B3D4F;
+	-fx-text-fill: white;
+}
+
+.context-menu {
+	-fx-background-color: #333333;
+}
+
+.menu-item {
+	-fx-background-color: #333333;
+}
+
+.menu-item:hover {
+	-fx-background-color: #292929;
+}
+
+.menu-item .label {
+    -fx-text-fill: white;
+}
+
+.tooltip {
+	-fx-background-color: #292929;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+	-fx-prompt-text-fill: black;
+}
+
+.text-field .search {
+	-fx-background-image:url('images/search_icon.png');
+	-fx-background-repeat: no-repeat;
+	-fx-background-position: left center;
+}
+
+.button {
+		-fx-text-fill: white;
+}
+
+.table-view {
+   -fx-background-color: #181818;
+}
+
+.table-view .column-header {
+    -fx-background-color: #181818;
+}
+
+.table-row-cell {
+    -fx-background-color: #181818;
+}
+
+.table-view .table-cell {
+    -fx-text-fill: white;
+    -fx-padding: 5;
+}
+
+/* Row hovered */
+.table-view:row-selection .table-row-cell:filled:hover {
+    -fx-background-color: #282828;
+}
+
+/* Removes vertical cell borders */
+.table-view {
+  -fx-table-cell-border-color: transparent;
+}
+
+.table-view:focused .table-row-cell:filled:focused:selected {
+    -fx-background-color: #282828;
+}
+
+.table-row-cell {
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: gray;
+}
+
+.list-view {
+	-fx-background-color: #1F1F1F;
+}
+
+.list-cell:even {
+    -fx-text-fill: gray;
+    -fx-background-color: #1F1F1F;
+}
+
+.list-cell:odd {
+    -fx-text-fill: gray;
+	-fx-background-color: #1F1F1F;
+}
+
+.list-cell:filled:hover {
+	-fx-text-fill: white;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-text-fill: white;
+}
+
+*.scroll-bar:horizontal {
+    -fx-opacity: 0;
+}
+
+*.scroll-bar:vertical *.thumb {
+    -fx-background-color: #333333;
+    -fx-padding: 10px;
+}
+
+*.scroll-bar:vertical *.thumb:hover {
+	-fx-background-color: #404040;
+}
+
+*.scroll-bar:vertical *.increment-button,
+*.scroll-bar:vertical *.decrement-button {
+    -fx-background-color: #121212;
+    -fx-padding: 5px;
+    -fx-border-color: #121212;
+    -fx-background-insets: 0, 0, 0;
+}
+
+*.scroll-bar:vertical *.increment-arrow, 
+*.scroll-bar:vertical *.decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding:5px;     
+}
+
+*.scroll-bar:vertical *.track {
+	-fx-background-color: #181818;
+	-fx-padding: 10px;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(
+        from 0px .75em to .75em 0px,
+        repeat,
+        -fx-accent 0%,
+        -fx-accent 49%,
+        derive(-fx-accent, 30%) 50%,
+        derive(-fx-accent, 30%) 99%
+    );
+    -fx-background-insets: 0;
+}
+
+.progress-bar > .track {
+	-fx-background-color: #34495e;
+	-fx-text-box-border: #34495e;
+	-fx-control-inner-background: #34495e;
+}
+
+#appTitle {
+	-fx-text-fill: white;
+}
+
+.table-view .filler {
+  -fx-background-color: #181818;
+  -fx-padding: 1em;
+}
+
+.table-view .scroll-bar:horizontal .increment-arrow,
+.table-view .scroll-bar:horizontal .decrement-arrow,
+.table-view .scroll-bar:horizontal .increment-button,
+.table-view .scroll-bar:horizontal .decrement-button {
+    -fx-padding:0;
+}
+
