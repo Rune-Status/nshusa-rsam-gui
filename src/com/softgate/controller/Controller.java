@@ -365,7 +365,7 @@ public final class Controller implements Initializable {
 				return;
 			}
 			
-			AppData.archiveNames.put(selectedIndex, name);
+			AppData.archiveNames.put(selectedEntry, name);
 			
 			createTask(new Task<Boolean>() {
 
