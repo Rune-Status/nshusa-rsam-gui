@@ -3,9 +3,8 @@ Is a tool to help manage your game assets
 
 ## Stable release: 1.01
 [Download](https://www.mediafire.com/?21yewygpuzht94a)
-**Store editor**
+
 ![store editor](http://i.imgur.com/DujEQsw.png)
-**Archive editor**
 ![archive editor](http://i.imgur.com/37ADCZN.png)
 
 ## Features
