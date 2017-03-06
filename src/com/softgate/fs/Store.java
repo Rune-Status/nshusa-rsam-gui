@@ -2,7 +2,7 @@ package com.softgate.fs;
 
 import java.io.*;
 
-public final class FileStore {
+public final class Store {
 	
 	private static final byte[] buffer = new byte[520];
 	
@@ -11,7 +11,7 @@ public final class FileStore {
 	private final RandomAccessFile dataRaf;	
 	private final RandomAccessFile indexRaf;
 
-	public FileStore(int storeId, RandomAccessFile data, RandomAccessFile index) {		
+	public Store(int storeId, RandomAccessFile data, RandomAccessFile index) {		
 		this.storeId = storeId;
 		dataRaf = data;
 		indexRaf = index;

@@ -10,12 +10,56 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
+
 /**
  * A utility class for performing compression/decompression.
  *
  * @author Graham
  */
 public final class CompressionUtil {
+
+	/**
+	 * Bzip2s the specified array, removing the header.
+	 *
+	 * @param uncompressed The uncompressed array.
+	 * @return The compressed array.
+	 * @throws IOException If there is an error compressing the array.
+	 */
+	public static byte[] bzip2(byte[] uncompressed) throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+
+		try (BZip2CompressorOutputStream os = new BZip2CompressorOutputStream(bout, 1)) {
+			os.write(uncompressed);
+			os.finish();
+
+			byte[] compressed = bout.toByteArray();
+			byte[] newCompressed = new byte[compressed.length - 4]; // Strip the header
+			System.arraycopy(compressed, 4, newCompressed, 0, newCompressed.length);
+			return newCompressed;
+		}
+	}
+
+	/**
+	 * Debzip2s the compressed array and places the result into the decompressed array.
+	 *
+	 * @param compressed The compressed array, <strong>without</strong> the header.
+	 * @param decompressed The decompressed array.
+	 * @throws IOException If there is an error decompressing the array.
+	 */
+	public static void debzip2(byte[] compressed, byte[] decompressed) throws IOException {
+		byte[] newCompressed = new byte[compressed.length + 4];
+		newCompressed[0] = 'B';
+		newCompressed[1] = 'Z';
+		newCompressed[2] = 'h';
+		newCompressed[3] = '1';
+		System.arraycopy(compressed, 0, newCompressed, 4, compressed.length);
+
+		try (DataInputStream is = new DataInputStream(new BZip2CompressorInputStream(new ByteArrayInputStream(newCompressed)))) {
+			is.readFully(decompressed);
+		}
+	}
 
 	/**
 	 * Degzips the compressed array and places the results into the decompressed array.

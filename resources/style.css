@@ -11,11 +11,35 @@
 	-fx-background-color: transparent;
 }
 
+#replaceBtn {
+	-fx-graphic: url('images/replace_icon.png');
+}
+
+#replaceBtn:hover {
+	-fx-background-color: #292929;
+}
+
 #addEntryBtn {
 	-fx-graphic: url('images/add_icon.png');
 }
 
 #addEntryBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#addFileBtn {
+	-fx-graphic: url('images/add_file_icon.png');
+}
+
+#addFileBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#renameBtn {
+	-fx-graphic: url('images/rename_icon.png');
+}
+
+#renameBtn:hover {
 	-fx-background-color: #292929;
 }
 
@@ -175,6 +199,10 @@
     -fx-background-color: #282828;
 }
 
+.table-row-cell:selected {
+	-fx-background-color: #282828;
+}
+
 /* Removes vertical cell borders */
 .table-view {
   -fx-table-cell-border-color: transparent;
@@ -280,3 +308,19 @@
     -fx-padding:0;
 }
 
+.menu-bar {
+	-fx-background-color: #121212;
+	-fx-text-fill: white;
+}
+
+.menu .label {
+	-fx-text-fill: white;	
+}
+
+#createArchiveBtn {
+	-fx-graphic: url('images/create_archive_icon.png');
+}
+
+#createArchiveBtn:hover {
+	-fx-background-color: #292929;
+}

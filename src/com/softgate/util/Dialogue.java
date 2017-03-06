@@ -4,10 +4,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Optional;
-
-import com.softgate.App;
 
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -52,30 +49,23 @@ public final class Dialogue {
 		}
 	}
 	
-	public static File chooseFile() {
+	public static FileChooser fileChooser() {
 		FileChooser chooser = new FileChooser();
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		return chooser.showOpenDialog(App.getStage());
+		return chooser;
 	}
 	
-	public static File chooseFile(String title) {
+	public static FileChooser fileChooser(String title) {
 		FileChooser chooser = new FileChooser();
 		chooser.setTitle(title);
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		return chooser.showOpenDialog(App.getStage());
+		return chooser;
 	}
 	
-	public static File chooseDirectory() {
+	public static DirectoryChooser directoryChooser() {
 	    DirectoryChooser chooser = new DirectoryChooser();
 	    chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-	    return chooser.showDialog(App.getStage());
-	}
-	
-	public static List<File> chooseFiles() {
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Open Resource File");
-		fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-		return fileChooser.showOpenMultipleDialog(App.getStage());
+	    return chooser;
 	}
 	
 	public static WarningMessage showWarning(String message) {
@@ -98,6 +88,10 @@ public final class Dialogue {
 		return new InputMessage("Input", context, text);
 	}
 	
+	public static InputMessage showInput(String context) {
+		return new InputMessage("Input", context, "");
+	}
+	
 	public static final class WarningMessage extends Alert {
 
 		public WarningMessage(String message) {
@@ -113,16 +107,18 @@ public final class Dialogue {
 
 	public static final class OptionMessage extends Alert {
 
-		/**
-		 * Creates a new {@link OptionDialogue}.
-		 * 
-		 * @param header
-		 * 		The text to display
-		 */
 		public OptionMessage(String header) {
 			super(AlertType.CONFIRMATION);
 			setTitle("Information");
 			setHeaderText(header);
+			getButtonTypes().clear();
+		}
+		
+		public OptionMessage(String header, String content) {
+			super(AlertType.CONFIRMATION);
+			setTitle("Information");
+			setHeaderText(header);
+			setContentText(content);
 			getButtonTypes().clear();
 		}
 

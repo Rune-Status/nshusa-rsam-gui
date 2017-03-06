@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.softgate.controller.StoreController">
+   <left>
+      <VBox prefHeight="504.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+            <ListView fx:id="listView" VBox.vgrow="ALWAYS">
+               <contextMenu>
+                  <ContextMenu>
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#renameStore" text="Rename" />
+                        <MenuItem mnemonicParsing="false" onAction="#dumpIndex" text="Dump" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
+               <VBox.margin>
+                  <Insets left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+               <tooltip>
+                  <Tooltip text="These are called &quot;Stores&quot; they store other files" />
+               </tooltip>
+            </ListView>
+            <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+               <tooltip>
+                  <Tooltip text="Search stores by their name or index" />
+               </tooltip>
+            </TextField>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox BorderPane.alignment="TOP_CENTER">
+         <children>
+            <TableView fx:id="tableView" VBox.vgrow="ALWAYS">
+              <columns>
+                  <TableColumn fx:id="iconCol" prefWidth="45.0" text="Icon" />
+                <TableColumn fx:id="idCol" prefWidth="75.0" text="Id" />
+                <TableColumn fx:id="nameCol" minWidth="100.0" prefWidth="100.0" text="Name" />
+                  <TableColumn fx:id="extCol" prefWidth="107.0" text="Extension" />
+                  <TableColumn fx:id="sizeCol" prefWidth="91.0" text="Size" />
+              </columns>
+               <VBox.margin>
+                  <Insets right="5.0" top="5.0" />
+               </VBox.margin>
+               <contextMenu>
+                  <ContextMenu>
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Add" />
+                        <MenuItem mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
+                        <MenuItem mnemonicParsing="false" onAction="#removeEntry" text="Remove" />
+                        <MenuItem mnemonicParsing="false" onAction="#replaceEntry" text="Replace" />
+                        <MenuItem mnemonicParsing="false" onAction="#dumpEntry" text="Dump" />
+                        <MenuItem mnemonicParsing="false" onAction="#clearIndex" text="Clear" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+               <tooltip>
+                  <Tooltip text="These files are called &quot;Store Entries&quot; they are files found within a &quot;Store&quot;" />
+               </tooltip>
+            </TableView>
+            <VBox>
+               <children>
+                  <HBox alignment="CENTER_LEFT">
+                     <children>
+                        <Button fx:id="addEntryBtn" mnemonicParsing="false" onAction="#addEntry" text="Add">
+                           <tooltip>
+                              <Tooltip text="Use this button to add an entry to a store" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="deleteEntryBtn" mnemonicParsing="false" text="Remove">
+                           <tooltip>
+                              <Tooltip text="Use this button to remove an entry from a store" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename">
+                           <tooltip>
+                              <Tooltip text="Use this button to rename an entry" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="replaceBtn" mnemonicParsing="false" onAction="#replaceEntry" text="Replace">
+                           <tooltip>
+                              <Tooltip text="Use this button to replace an entry" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpEntry" text="Dump">
+                           <tooltip>
+                              <Tooltip text="Use this button to dump entries" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearIndex" text="Clear">
+                           <tooltip>
+                              <Tooltip text="Use this button to remove all entries" />
+                           </tooltip>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER" VBox.vgrow="NEVER">
+                     <children>
+                        <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets bottom="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Search a file by its name or index" />
+                           </tooltip>
+                        </TextField>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+   <top>
+      <VBox alignment="CENTER_RIGHT">
+         <children>
+            <StackPane>
+               <children>
+                  <HBox alignment="CENTER" layoutX="327.0" layoutY="3.0" VBox.vgrow="NEVER">
+                     <children>
+                        <Label fx:id="appTitle" text="RS2 Asset Manager" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_RIGHT" layoutX="712.0" layoutY="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="3.0">
+                     <children>
+                        <Button fx:id="minBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#minimizeProgram" prefHeight="20.0" prefWidth="45.0" />
+                        <Button fx:id="maxBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="20.0" prefWidth="45.0" />
+                        <Button fx:id="closeBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#closeProgram" prefHeight="20.0" prefWidth="45.0" />
+                     </children>
+                  </HBox>
+               </children>
+            </StackPane>
+            <VBox>
+               <children>
+                  <MenuBar onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed">
+                    <menus>
+                      <Menu mnemonicParsing="false" text="File">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#closeProgram" text="Close" />
+                        </items>
+                      </Menu>
+                      <Menu mnemonicParsing="false" text="Tools">
+                        <items>
+                          <MenuItem mnemonicParsing="false" onAction="#loadArchiveEditor" text="Archive Editor" />
+                        </items>
+                      </Menu>
+                    </menus>
+                  </MenuBar>
+                  <HBox>
+                     <children>
+                      <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#loadFS" text="Load">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Use this button to unpack your cache" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameStore" text="Rename">
+                           <tooltip>
+                              <Tooltip text="Use this button to rename a store" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Dump">
+                           <tooltip>
+                              <Tooltip text="Use this button to dump all entries from a store" />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearProgram" text="Clear">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Use this button to clear the editor" />
+                           </tooltip>
+                        </Button>
+                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
+                           <children>
+                              <StackPane prefHeight="25.0" prefWidth="400.0" HBox.hgrow="NEVER">
+                                 <children>
+                                    <ProgressBar fx:id="progressBar" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="40.0" prefWidth="482.0" progress="0.0" visible="false" HBox.hgrow="ALWAYS">
+                                       <HBox.margin>
+                                          <Insets right="5.0" top="5.0" />
+                                       </HBox.margin>
+                                    </ProgressBar>
+                                    <Text fx:id="progressText" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" />
+                                 </children>
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
+                              </StackPane>
+                           </children>
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </HBox>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </top>
+</BorderPane>

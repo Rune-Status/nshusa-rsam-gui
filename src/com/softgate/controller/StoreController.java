@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -14,8 +15,8 @@ import java.util.ResourceBundle;
 import com.softgate.App;
 import com.softgate.AppData;
 import com.softgate.fs.Cache;
-import com.softgate.fs.FileStore;
-import com.softgate.model.FileStoreEntryWrapper;
+import com.softgate.fs.Store;
+import com.softgate.model.StoreEntryWrapper;
 import com.softgate.util.Dialogue;
 import com.softgate.util.FileUtils;
 
@@ -27,36 +28,41 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
-public final class Controller implements Initializable {
+public final class StoreController implements Initializable {
 
 	@FXML
 	private ListView<String> listView;
 
-	final ObservableList<FileStoreEntryWrapper> data = FXCollections.observableArrayList();
+	final ObservableList<StoreEntryWrapper> data = FXCollections.observableArrayList();
 
 	final ObservableList<String> indexes = FXCollections.observableArrayList();
 
 	@FXML
-	private TableView<FileStoreEntryWrapper> tableView;
+	private TableView<StoreEntryWrapper> tableView;
 
 	@FXML
-	private TableColumn<FileStoreEntryWrapper, Integer> idCol;
+	private TableColumn<StoreEntryWrapper, Integer> idCol;
 
 	@FXML
-	private TableColumn<FileStoreEntryWrapper, String> nameCol, extCol, sizeCol;
+	private TableColumn<StoreEntryWrapper, String> nameCol, extCol, sizeCol;
 
 	@FXML
-	private TableColumn<FileStoreEntryWrapper, ImageView> iconCol;
+	private TableColumn<StoreEntryWrapper, ImageView> iconCol;
 
 	@FXML
 	private TextField fileTf, indexTf;
@@ -69,21 +75,9 @@ public final class Controller implements Initializable {
 
 	private double xOffset, yOffset;
 
-	public static final Image indexIcon = new Image(App.class.getResourceAsStream("/images/index_icon.png"));
-
-	public static final Image datIcon = new Image(App.class.getResourceAsStream("/images/dat_icon.png"));
-
-	public static final Image idxIcon = new Image(App.class.getResourceAsStream("/images/idx_icon.png"));
-
-	public static final Image textIcon = new Image(App.class.getResourceAsStream("/images/text_icon.png"));
-
-	public static final Image midiIcon = new Image(App.class.getResourceAsStream("/images/midi_icon.png"));
-
-	public static final Image pngIcon = new Image(App.class.getResourceAsStream("/images/dat_icon.png"));
-
-	public static final Image fileIcon = new Image(App.class.getResourceAsStream("/images/file_icon.png"));
-
 	private Cache cache;
+
+	private Stage stage;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -92,7 +86,7 @@ public final class Controller implements Initializable {
 		nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
 		extCol.setCellValueFactory(cellData -> cellData.getValue().getExtensionProperty());
 		sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty());
-		iconCol.setCellValueFactory(new PropertyValueFactory<FileStoreEntryWrapper, ImageView>("image"));
+		iconCol.setCellValueFactory(new PropertyValueFactory<StoreEntryWrapper, ImageView>("image"));
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 
@@ -141,7 +135,7 @@ public final class Controller implements Initializable {
 			}
 		});
 
-		FilteredList<FileStoreEntryWrapper> filteredData = new FilteredList<>(data, p -> true);
+		FilteredList<StoreEntryWrapper> filteredData = new FilteredList<>(data, p -> true);
 
 		fileTf.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredData.setPredicate(file -> {
@@ -163,10 +157,11 @@ public final class Controller implements Initializable {
 			});
 		});
 
-		SortedList<FileStoreEntryWrapper> sortedData = new SortedList<>(filteredData);
+		SortedList<StoreEntryWrapper> sortedData = new SortedList<>(filteredData);
 
 		sortedData.comparatorProperty().bind(tableView.comparatorProperty());
 
+		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(sortedData);
 
 	}
@@ -179,7 +174,7 @@ public final class Controller implements Initializable {
 				setGraphic(null);
 				setText(null);
 			} else {
-				ImageView imageView = new ImageView(indexIcon);
+				ImageView imageView = new ImageView(AppData.indexIcon);
 				setGraphic(imageView);
 				setText(item);
 			}
@@ -191,7 +186,7 @@ public final class Controller implements Initializable {
 
 		clearProgram();
 
-		final File selectedDirectory = Dialogue.chooseDirectory();
+		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
 		if (selectedDirectory == null) {
 			return;
@@ -202,12 +197,12 @@ public final class Controller implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 
-				cache = Cache.init(selectedDirectory.toPath(), false);
+				cache = Cache.init(selectedDirectory.toPath());
 
 				Platform.runLater(() -> {
 					populateIndex();
 				});
-				
+
 				double progress = 100.00;
 
 				updateMessage(String.format("%.2f%s", progress, "%"));
@@ -236,7 +231,7 @@ public final class Controller implements Initializable {
 		}
 	}
 
-	private void populateTable(int storeId) {		
+	private void populateTable(int storeId) {
 		if (cache == null) {
 			return;
 		}
@@ -244,53 +239,152 @@ public final class Controller implements Initializable {
 		if (storeId < 0) {
 			return;
 		}
+		
+		createTask(new Task<Boolean>() {
 
-		FileStore store = cache.getStore(storeId);
+			@Override
+			protected Boolean call() throws Exception {
+				Store store = cache.getStore(storeId);
 
-		data.clear();
+				if (store == null) {
+					return false;
+				}
 
-		for (int i = 0; i < store.getFileCount(); i++) {
+				Platform.runLater(() -> {
+					data.clear();
+				});
+				
+				final List<StoreEntryWrapper> storeWrappers = new ArrayList<>();
+				
+				int entries = store.getFileCount();
 
-			byte[] fileData = store.readFile(i);
+				for (int i = 0; i < entries; i++) {
 
-			if (fileData == null) {
-				fileData = new byte[0];
-			}
+					byte[] fileData = store.readFile(i);
 
-			boolean gzipped = FileUtils.isCompressed(fileData);
-			
-			if (storeId == 0) {
+					if (fileData == null) {
+						fileData = new byte[0];
+					}
+
+					boolean gzipped = FileUtils.isCompressed(fileData);
+
+					if (storeId == 0) {
+
+						String name = AppData.archiveNames.get(i);
+
+						if (name == null) {
+							name = Integer.toString(i);
+						}
+						
+						storeWrappers.add(new StoreEntryWrapper(i, name, fileData.length));
+					} else {
+						storeWrappers.add(new StoreEntryWrapper(i, gzipped ? i + ".gz" : i + ".dat", fileData.length));
+					}
 					
-				String name = AppData.archiveNames.get(i);
+					double progress = ((double)(i + 1) / entries) * 100;
+					
+					updateMessage(String.format("%.2f%s", progress, "%"));
+					updateProgress((i + 1), entries);
+
+				}
 				
-				if (name == null) {
-					name = Integer.toString(i);
-				}				
-				
-				data.add(new FileStoreEntryWrapper(i, name, fileData.length));
-				
-			} else {
-				data.add(new FileStoreEntryWrapper(i, gzipped ? i + ".gz" : i + ".dat",
-						fileData.length));
+				Platform.runLater(() -> {
+					data.addAll(storeWrappers);
+				});
+
+				return true;
 			}
+			
+		});
+
+	}
+
+	@FXML
+	private void createStore() {
+		if (cache == null) {
+			return;
+		}
+
+		final int nextIndex = cache.getStoreCount();
+
+		try {
+			cache.createStore(nextIndex);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
+		final Store store = cache.getStore(nextIndex);
+		
+		if (store == null) {
+			return;
+		}
+
+		Optional<String> result = Dialogue.showInput("Name this store").showAndWait();
+
+		if (result.isPresent()) {
+
+			String name = result.get();
+
+			if (name == null) {
+				Dialogue.showWarning("Name cannot be null");
+				return;
+			} else if (name.isEmpty()) {
+				Dialogue.showWarning("Name cannot be empty");
+				return;
+			} else if (name.length() >= 20) {
+				Dialogue.showWarning("Name must be shorter than 20 characters");
+				return;
+			}
+
+			indexes.add(name);
+
+			AppData.storeNames.put(nextIndex, name);
+
+			createTask(new Task<Boolean>() {
+
+				@Override
+				protected Boolean call() throws Exception {
+
+					saveStoreCookies();
+					
+					double progress = 100.00;
+
+					updateMessage(String.format("%.2f%s", progress, "%"));
+					updateProgress(1, 1);
+
+					return true;
+				}
+
+			});
 
 		}
 
+	}
+	
+	private synchronized void saveStoreCookies() {
+		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
+			for (Entry<Integer, String> set : AppData.storeNames.entrySet()) {
+				writer.println(set.getKey() + ":" + set.getValue());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@FXML
 	private void renameStore() {
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-		
+
 		if (selectedIndex == -1) {
 			return;
 		}
-		
+
 		Optional<String> result = Dialogue.showInput("Enter a new name", "").showAndWait();
-		
+
 		if (result.isPresent()) {
 			String name = result.get();
-			
+
 			if (name == null) {
 				Dialogue.showWarning("Name cannot be null");
 				return;
@@ -301,59 +395,56 @@ public final class Controller implements Initializable {
 				Dialogue.showWarning("Name must be shorter than 20 characters");
 				return;
 			}
-			
+
 			AppData.storeNames.put(selectedIndex, name);
-			
+
 			createTask(new Task<Boolean>() {
 
 				@Override
 				protected Boolean call() throws Exception {
-					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
-						for (Entry<Integer, String> set : AppData.storeNames.entrySet()) {
-							writer.println(set.getKey() + ":" + set.getValue());
-						}
-					}
-					
+
+					saveStoreCookies();
+
 					double progress = 100.00;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
 					updateProgress(1, 1);
-					
+
 					Platform.runLater(() -> {
 						indexes.set(selectedIndex, name);
 					});
-					
+
 					return true;
 				}
-				
-			});			
-			
+
+			});
+
 		}
 	}
-	
+
 	@FXML
 	private void renameArchive() {
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-		
+
 		if (selectedIndex == -1) {
 			return;
 		}
-		
+
 		final int selectedEntry = tableView.getSelectionModel().getSelectedIndex();
-		
+
 		if (selectedEntry == -1) {
 			return;
 		}
-		
+
 		if (cache == null) {
 			return;
-		}			
-		
+		}
+
 		Optional<String> result = Dialogue.showInput("Enter a new name", "").showAndWait();
-		
+
 		if (result.isPresent()) {
 			String name = result.get();
-			
+
 			if (name == null) {
 				Dialogue.showWarning("Name cannot be null");
 				return;
@@ -364,40 +455,48 @@ public final class Controller implements Initializable {
 				Dialogue.showWarning("Name must be shorter than 20 characters");
 				return;
 			}
-			
+
 			AppData.archiveNames.put(selectedEntry, name);
-			
+
 			createTask(new Task<Boolean>() {
 
 				@Override
 				protected Boolean call() throws Exception {
-					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-						for (Entry<Integer, String> set : AppData.archiveNames.entrySet()) {
-							writer.println(set.getKey() + ":" + set.getValue());
-						}
-					}
 					
-					FileStore store = cache.getStore(selectedIndex);
-					
+					saveArchiveCookies();
+
+					Store store = cache.getStore(selectedIndex);
+
 					final byte[] fileData = store.readFile(selectedEntry);
-					
+
 					double progress = 100.00;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
 					updateProgress(1, 1);
-					
+
 					Platform.runLater(() -> {
-						data.set(selectedEntry, new FileStoreEntryWrapper(selectedEntry, name, fileData == null ? 0 : fileData.length));
+						data.set(selectedEntry,
+								new StoreEntryWrapper(selectedEntry, name, fileData == null ? 0 : fileData.length));
 					});
-					
+
 					return true;
 				}
-				
-			});			
-			
+
+			});
+
 		}
 	}
 	
+	private synchronized void saveArchiveCookies() {
+		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
+			for (Entry<Integer, String> set : AppData.archiveNames.entrySet()) {
+				writer.println(set.getKey() + ":" + set.getValue());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	@FXML
 	private void addEntry() {
 
@@ -407,7 +506,7 @@ public final class Controller implements Initializable {
 			return;
 		}
 
-		final List<File> files = Dialogue.chooseFiles();
+		final List<File> files = Dialogue.fileChooser().showOpenMultipleDialog(stage);
 
 		if (files == null) {
 			return;
@@ -418,7 +517,7 @@ public final class Controller implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 
-				FileStore store = cache.getStore(selectedIndex);
+				Store store = cache.getStore(selectedIndex);
 
 				int fileCount = 0;
 				for (File file : files) {
@@ -468,12 +567,28 @@ public final class Controller implements Initializable {
 		if (selectedFile == -1) {
 			return;
 		}
+		
+		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?", "This file will be deleted permanently.");
+		
+		option.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		
+		Optional<ButtonType> result = option.showAndWait();
+		
+		if (result.isPresent()) {
+			
+			ButtonType type = result.get();
+			
+			if (type != ButtonType.YES) {
+				return;
+			}
+			
+		}
 
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
-				FileStore store = cache.getStore(selectedIndex);
+				Store store = cache.getStore(selectedIndex);
 
 				store.writeFile(selectedFile, new byte[0], 0);
 
@@ -506,7 +621,7 @@ public final class Controller implements Initializable {
 			return;
 		}
 
-		final File selectedFile = Dialogue.chooseFile();
+		final File selectedFile = Dialogue.fileChooser().showOpenDialog(stage);
 
 		if (selectedFile == null) {
 			return;
@@ -516,7 +631,7 @@ public final class Controller implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final Store store = cache.getStore(selectedIndex);
 
 				final byte[] data = FileUtils.readFile(selectedFile);
 
@@ -535,7 +650,7 @@ public final class Controller implements Initializable {
 
 		});
 	}
-
+	
 	@FXML
 	private void dumpEntry() {
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
@@ -543,21 +658,16 @@ public final class Controller implements Initializable {
 		if (selectedIndex == -1 || cache == null) {
 			return;
 		}
-
-		final int selectedEntryIndex = tableView.getSelectionModel().getSelectedIndex();
 		
-		final FileStoreEntryWrapper selectedEntry = tableView.getSelectionModel().getSelectedItem();
+		final List<Integer> selectedIndexes = tableView.getSelectionModel().getSelectedIndices();
 
-		if (selectedEntryIndex == -1 || selectedEntry == null) {
-			return;
-		}
-		
-		if (selectedEntry.getSize().equalsIgnoreCase("0")) {
-			Dialogue.showWarning("This file is empty.");
+		final List<StoreEntryWrapper> selectedEntries = tableView.getSelectionModel().getSelectedItems();
+
+		if (selectedEntries == null) {
 			return;
 		}
 
-		final File selectedDirectory = Dialogue.chooseDirectory();
+		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
 		if (selectedDirectory == null) {
 			return;
@@ -567,30 +677,38 @@ public final class Controller implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final Store store = cache.getStore(selectedIndex);
+				
+				for (int i = 0; i < selectedIndexes.size(); i++) {
+					int selectedEntryIndex = selectedIndexes.get(i);
+					
+					StoreEntryWrapper storeWrapper = selectedEntries.get(i);
+					
+					byte[] fileData = store.readFile(selectedEntryIndex);
 
-				byte[] fileData = store.readFile(selectedEntryIndex);			
+					if (fileData == null) {
+						return false;
+					}
 
-				if (fileData == null) {
-					return false;
+					try (FileOutputStream fos = new FileOutputStream(
+							new File(selectedDirectory, storeWrapper.getName() + "." + storeWrapper.getExtension()))) {
+						fos.write(fileData);
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					final double progress = ((double)(i + 1) / selectedIndexes.size()) * 100;
+
+					updateMessage(String.format("%.2f%s", progress, "%"));
+					updateProgress((i + 1), selectedIndexes.size());					
+					
 				}
-
-				try (FileOutputStream fos = new FileOutputStream(new File(selectedDirectory, selectedEntry.getName() + "." + selectedEntry.getExtension()))) {
-					fos.write(fileData);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				final double progress = 100.00;
-
-				updateMessage(String.format("%.2f%s", progress, "%"));
-				updateProgress(1, 1);
 
 				Platform.runLater(() -> {
 					populateTable(selectedIndex);
-					
+
 					Dialogue.openDirectory("Would you like to view this file?", selectedDirectory);
 				});
 				return true;
@@ -608,7 +726,7 @@ public final class Controller implements Initializable {
 			return;
 		}
 
-		final File selectedDirectory = Dialogue.chooseDirectory();
+		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
 		if (selectedDirectory == null) {
 			return;
@@ -618,22 +736,22 @@ public final class Controller implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final Store store = cache.getStore(selectedIndex);
 
 				final int storeCount = store.getFileCount();
 
 				for (int i = 0; i < storeCount; i++) {
-					byte[] data = store.readFile(i);
+					byte[] fileData = store.readFile(i);
 
-					if (data == null) {
+					if (fileData == null) {
 						continue;
 					}
 
-					boolean gzipped = FileUtils.isCompressed(data);
+					StoreEntryWrapper wrapper = data.get(i);
 
-					try (FileOutputStream fos = new FileOutputStream(new File(selectedDirectory,
-							selectedIndex > 0 ? gzipped ? i + ".gz" : i + ".dat" : i + ".jag"))) {
-						fos.write(data);
+					try (FileOutputStream fos = new FileOutputStream(
+							new File(selectedDirectory, wrapper.getName() + "." + wrapper.getExtension()))) {
+						fos.write(fileData);
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
 					} catch (IOException e) {
@@ -669,7 +787,23 @@ public final class Controller implements Initializable {
 			return;
 		}
 
-		final FileStore store = cache.getStore(selectedIndex);
+		final Store store = cache.getStore(selectedIndex);
+		
+		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?", "All files will be deleted permanently.");
+		
+		option.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		
+		Optional<ButtonType> result = option.showAndWait();
+		
+		if (result.isPresent()) {
+			
+			ButtonType type = result.get();
+			
+			if (type != ButtonType.YES) {
+				return;
+			}
+			
+		}
 
 		createTask(new Task<Boolean>() {
 
@@ -690,6 +824,33 @@ public final class Controller implements Initializable {
 	}
 
 	@FXML
+	private void loadArchiveEditor() {
+		try {
+			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ArchiveUI.fxml"));
+
+			Parent root = (Parent) loader.load();
+
+			ArchiveController controller = (ArchiveController) loader.getController();
+
+			Stage stage = new Stage();
+
+			controller.setStage(stage);
+			stage.setTitle("My New Stage Title");
+			Scene scene = new Scene(root);
+			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+			stage.setScene(scene);
+			stage.initStyle(StageStyle.TRANSPARENT);
+			stage.setResizable(false);
+			stage.centerOnScreen();
+			stage.setTitle("Archive Editor");
+			stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
 	private void handleMousePressed(MouseEvent event) {
 		xOffset = event.getSceneX();
 		yOffset = event.getSceneY();
@@ -697,8 +858,8 @@ public final class Controller implements Initializable {
 
 	@FXML
 	private void handleMouseDragged(MouseEvent event) {
-		App.getStage().setX(event.getScreenX() - xOffset);
-		App.getStage().setY(event.getScreenY() - yOffset);
+		stage.setX(event.getScreenX() - xOffset);
+		stage.setY(event.getScreenY() - yOffset);
 	}
 
 	@FXML
@@ -709,17 +870,16 @@ public final class Controller implements Initializable {
 
 	@FXML
 	private void minimizeProgram() {
-
-		if (App.getStage() == null) {
+		if (stage == null) {
 			return;
 		}
 
-		App.getStage().setIconified(true);
+		stage.setIconified(true);
 	}
 
 	@FXML
 	private void closeProgram() {
-		Platform.exit();
+		stage.close();
 	}
 
 	private void createTask(Task<?> task) {
@@ -760,6 +920,10 @@ public final class Controller implements Initializable {
 			pause.play();
 
 		});
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 
 }
