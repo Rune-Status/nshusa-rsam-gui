@@ -1,4 +1,4 @@
-group = 'rsam'
+group = 'rsam-gui'
 version = '1.00'
 apply plugin: 'java'
 
@@ -7,12 +7,15 @@ repositories {
 }
 
 dependencies {
+
+	compile files('deps/rsam-1.00.jar')
+
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-compress
 	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.13'
 
 }
 
 sourceSets {
-  main.java.srcDirs = ['src']
+  main.java.srcDirs = ['src/main/java', 'src/test/java']
   main.resources.srcDirs = ['resources']
 }

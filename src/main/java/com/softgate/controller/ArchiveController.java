@@ -21,6 +21,7 @@ import com.softgate.util.CompressionUtil;
 import com.softgate.util.Dialogue;
 import com.softgate.util.FileUtils;
 import com.softgate.util.HashUtils;
+import com.softgate.util.StringUtils;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -802,7 +803,7 @@ public final class ArchiveController implements Initializable {
 						byte[] fileData = archive.readFile(entry.getHash());
 						
 						try (FileOutputStream fos = new FileOutputStream(
-								new File(dir, entry.getCommonName()))) {
+								new File(dir, StringUtils.getCommonName(entry)))) {
 							fos.write(fileData);
 						}
 						

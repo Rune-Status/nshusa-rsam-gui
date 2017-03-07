@@ -23,10 +23,10 @@ public final class ArchiveEntryWrapper {
 	
 	public ArchiveEntryWrapper(ArchiveEntry entry) {
 		this.hash = new SimpleIntegerProperty(entry.getHash()).asObject();
-		this.name = new SimpleStringProperty(entry.getCommonName().contains(".") ? entry.getCommonName().substring(0, entry.getCommonName().lastIndexOf(".")) : entry.getCommonName());
-		this.extension = new SimpleStringProperty(entry.getCommonName().contains(".") ? entry.getCommonName().substring(entry.getCommonName().lastIndexOf(".") + 1, entry.getCommonName().length()) : "none");
+		this.name = new SimpleStringProperty(StringUtils.getCommonName(entry).contains(".") ? StringUtils.getCommonName(entry).substring(0, StringUtils.getCommonName(entry).lastIndexOf(".")) : StringUtils.getCommonName(entry));
+		this.extension = new SimpleStringProperty(StringUtils.getCommonName(entry).contains(".") ? StringUtils.getCommonName(entry).substring(StringUtils.getCommonName(entry).lastIndexOf(".") + 1, StringUtils.getCommonName(entry).length()) : "none");
 		this.size = new SimpleStringProperty(StringUtils.readableFileSize(entry.getCompresseedSize()));
-		this.image = new ImageView(AppData.getIcon(entry.getCommonName().contains(".") ? entry.getCommonName().substring(entry.getCommonName().lastIndexOf(".") + 1, entry.getCommonName().length()) : "none"));
+		this.image = new ImageView(AppData.getIcon(StringUtils.getCommonName(entry).contains(".") ? StringUtils.getCommonName(entry).substring(StringUtils.getCommonName(entry).lastIndexOf(".") + 1, StringUtils.getCommonName(entry).length()) : "none"));
 	}
 	
 	public ObservableValue<Integer> idProperty() {
