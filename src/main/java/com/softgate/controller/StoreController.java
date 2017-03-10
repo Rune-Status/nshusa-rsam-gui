@@ -835,7 +835,34 @@ public final class StoreController implements Initializable {
 			Stage stage = new Stage();
 
 			controller.setStage(stage);
-			stage.setTitle("My New Stage Title");
+			stage.setTitle("Archive Editor");
+			Scene scene = new Scene(root);
+			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+			stage.setScene(scene);
+			stage.initStyle(StageStyle.TRANSPARENT);
+			stage.setResizable(false);
+			stage.centerOnScreen();
+			stage.setTitle("Archive Editor");
+			stage.show();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@FXML
+	private void loadImageArchiveEditor() {
+		try {
+			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ImageArchiveUI.fxml"));
+
+			Parent root = (Parent) loader.load();
+
+			ImageArchiveController controller = (ImageArchiveController) loader.getController();
+
+			Stage stage = new Stage();
+
+			controller.setStage(stage);
+			stage.setTitle("Image Archive Editor");
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
 			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));

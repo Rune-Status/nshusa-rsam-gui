@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
 
-	compile files('deps/rsam-1.00.jar')
+	compile files('deps/rsam-1.01.jar')
 
 	// https://mvnrepository.com/artifact/org.apache.commons/commons-compress
 	compile group: 'org.apache.commons', name: 'commons-compress', version: '1.13'

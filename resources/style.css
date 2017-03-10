@@ -67,6 +67,14 @@
 	-fx-background-color: #292929;
 }
 
+#saveImageBtn {
+	-fx-graphic: url('images/save_image_icon.png');
+}
+
+#saveImageBtn:hover {
+	-fx-background-color: #292929;
+}
+
 #loadBtn:pressed {
 	-fx-background-color: #1F1F1F;
 }
@@ -323,4 +331,17 @@
 
 #createArchiveBtn:hover {
 	-fx-background-color: #292929;
+}
+
+.tree-view, .tree-cell {
+	-fx-background-color: #1F1F1F;
+    -fx-text-fill: gray;
+}
+
+.tree-cell:selected {
+	-fx-text-fill: white;
+}
+
+.tree-cell:hover {
+	-fx-text-fill: white;
 }
