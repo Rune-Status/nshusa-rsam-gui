@@ -14,8 +14,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import com.softgate.App;
 import com.softgate.AppData;
-import com.softgate.fs.Cache;
-import com.softgate.fs.Store;
+import com.softgate.fs.FileStore;
+import com.softgate.fs.IndexedFileSystem;
 import com.softgate.model.StoreEntryWrapper;
 import com.softgate.util.Dialogue;
 import com.softgate.util.FileUtils;
@@ -75,7 +75,7 @@ public final class StoreController implements Initializable {
 
 	private double xOffset, yOffset;
 
-	private Cache cache;
+	private IndexedFileSystem cache;
 
 	private Stage stage;
 
@@ -197,7 +197,7 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 
-				cache = Cache.init(selectedDirectory.toPath());
+				cache = IndexedFileSystem.init(selectedDirectory.toPath());
 
 				Platform.runLater(() -> {
 					populateIndex();
@@ -244,7 +244,7 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				Store store = cache.getStore(storeId);
+				FileStore store = cache.getStore(storeId);
 
 				if (store == null) {
 					return false;
@@ -314,7 +314,7 @@ public final class StoreController implements Initializable {
 			return;
 		}
 		
-		final Store store = cache.getStore(nextIndex);
+		final FileStore store = cache.getStore(nextIndex);
 		
 		if (store == null) {
 			return;
@@ -465,7 +465,7 @@ public final class StoreController implements Initializable {
 					
 					saveArchiveCookies();
 
-					Store store = cache.getStore(selectedIndex);
+					FileStore store = cache.getStore(selectedIndex);
 
 					final byte[] fileData = store.readFile(selectedEntry);
 
@@ -517,7 +517,7 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 
-				Store store = cache.getStore(selectedIndex);
+				FileStore store = cache.getStore(selectedIndex);
 
 				int fileCount = 0;
 				for (File file : files) {
@@ -588,7 +588,7 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				Store store = cache.getStore(selectedIndex);
+				FileStore store = cache.getStore(selectedIndex);
 
 				store.writeFile(selectedFile, new byte[0], 0);
 
@@ -631,7 +631,7 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final Store store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedIndex);
 
 				final byte[] data = FileUtils.readFile(selectedFile);
 
@@ -677,7 +677,7 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final Store store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedIndex);
 				
 				for (int i = 0; i < selectedIndexes.size(); i++) {
 					int selectedEntryIndex = selectedIndexes.get(i);
@@ -736,7 +736,7 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final Store store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedIndex);
 
 				final int storeCount = store.getFileCount();
 
@@ -787,7 +787,7 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
-		final Store store = cache.getStore(selectedIndex);
+		final FileStore store = cache.getStore(selectedIndex);
 		
 		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?", "All files will be deleted permanently.");
 		

@@ -13,8 +13,8 @@ import java.util.ResourceBundle;
 import java.util.Map.Entry;
 
 import com.softgate.AppData;
-import com.softgate.fs.Archive;
-import com.softgate.fs.ArchiveEntry;
+import com.softgate.fs.binary.Archive;
+import com.softgate.fs.binary.Archive.ArchiveEntry;
 import com.softgate.model.ArchiveEntryWrapper;
 import com.softgate.model.FileWrapper;
 import com.softgate.util.CompressionUtil;

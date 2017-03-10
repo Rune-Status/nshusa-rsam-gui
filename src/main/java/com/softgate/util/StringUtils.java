@@ -3,7 +3,7 @@ package com.softgate.util;
 import java.text.DecimalFormat;
 
 import com.softgate.AppData;
-import com.softgate.fs.ArchiveEntry;
+import com.softgate.fs.binary.Archive.ArchiveEntry;
 
 public final class StringUtils {
 	

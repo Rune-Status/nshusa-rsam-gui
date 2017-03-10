@@ -1,7 +1,7 @@
 package com.softgate.model;
 
 import com.softgate.AppData;
-import com.softgate.fs.ArchiveEntry;
+import com.softgate.fs.binary.Archive.ArchiveEntry;
 import com.softgate.util.StringUtils;
 
 import javafx.beans.property.SimpleIntegerProperty;
