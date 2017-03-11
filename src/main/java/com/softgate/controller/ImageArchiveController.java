@@ -56,6 +56,10 @@ public class ImageArchiveController implements Initializable {
 		
 		treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 			
+			if (newSelection == null) {
+				return;
+			}
+			
 			if (newSelection.isLeaf()) {
 				
 				ImageView imageView = (ImageView) newSelection.getGraphic();
