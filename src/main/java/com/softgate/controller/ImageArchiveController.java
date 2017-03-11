@@ -24,6 +24,8 @@ import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -68,7 +70,32 @@ public class ImageArchiveController implements Initializable {
 					return;
 				}
 				
+				ContextMenu contextMenu = new ContextMenu();				
+				
+				MenuItem item1 = new MenuItem("Dump");
+				item1.setOnAction(e -> dump());				
+				
+				contextMenu.getItems().addAll(item1);
+				
+				treeView.setContextMenu(contextMenu);
+				
 				this.imageView.setImage(imageView.getImage());
+				
+			} else {
+				
+				// archive or root
+				
+				ContextMenu contextMenu = new ContextMenu();				
+				
+				MenuItem item1 = new MenuItem("Dump");
+				item1.setOnAction(e -> dump());
+				
+				MenuItem item2 = new MenuItem("Dump All");
+				item2.setOnAction(e -> dumpAll());
+				
+				contextMenu.getItems().addAll(item1, item2);
+				
+				treeView.setContextMenu(contextMenu);
 				
 			}
 			
@@ -126,6 +153,74 @@ public class ImageArchiveController implements Initializable {
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					return false;
+				}
+				return true;
+			}
+			
+		});
+		
+	}
+	
+	@FXML
+	private void dump() {
+		TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
+		
+		if (selected == null) {
+			return;
+		}
+		
+		final File dir = Dialogue.directoryChooser().showDialog(stage);
+		
+		if (dir == null) {
+			return;
+		}
+		
+		createTask(new Task<Boolean>() {
+
+			@Override
+			protected Boolean call() throws Exception {
+				if (selected.isLeaf()) {
+					
+					ImageView imageView = (ImageView)selected.getGraphic();
+					
+					try {
+						ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, selected.getValue() + ".png"));
+						
+						updateProgress(1, 1);
+						updateMessage("100%");
+						
+						Platform.runLater(() -> {
+							Dialogue.openDirectory("Would you like to view this image?", dir);
+						});
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+				} else {
+					
+					for (int i = 0; i < selected.getChildren().size(); i++) {
+						TreeItem<String> entry = selected.getChildren().get(i);
+						
+						ImageView imageView = (ImageView)entry.getGraphic();
+						
+						try {
+							ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, entry.getValue() + ".png"));
+							
+							double progress = ((double) (i + 1) / selected.getChildren().size()) * 100;
+							
+							updateProgress((i + 1), selected.getChildren().size());
+							updateMessage(String.format("%.2f%s", progress, "%"));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						
+					}
+					
+					Platform.runLater(() -> {
+						Dialogue.openDirectory("Would you like to view these images?", dir);
+					});
+					
 				}
 				return true;
 			}
