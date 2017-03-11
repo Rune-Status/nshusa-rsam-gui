@@ -54,7 +54,7 @@
             <HBox BorderPane.alignment="CENTER">
                <children>
                   <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#unpack" text="Unpack" />
-                  <Button fx:id="saveImageBtn" mnemonicParsing="false" text="Dump" />
+                  <Button fx:id="saveImageBtn" mnemonicParsing="false" onAction="#dumpAll" text="Dump" />
                   <Button fx:id="clearBtn" mnemonicParsing="false" text="Clear">
                      <HBox.margin>
                         <Insets right="5.0" />
@@ -62,7 +62,7 @@
                   </Button>
                   <StackPane HBox.hgrow="ALWAYS">
                      <children>
-                        <ProgressBar fx:id="progressBar" prefHeight="22.0" prefWidth="291.0" progress="0.0" />
+                        <ProgressBar fx:id="progressBar" prefHeight="22.0" prefWidth="291.0" progress="0.0" visible="false" />
                         <Text fx:id="progressText" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" />
                      </children>
                   </StackPane>

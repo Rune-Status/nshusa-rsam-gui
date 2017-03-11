@@ -1,11 +1,14 @@
 package com.softgate.controller;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.imageio.ImageIO;
 
 import com.softgate.fs.binary.Archive;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
@@ -125,6 +128,62 @@ public class ImageArchiveController implements Initializable {
 			
 		});
 		
+	}
+	
+	@FXML
+	private void dumpAll() {
+		if (treeView.getRoot().getChildren().isEmpty()) {
+			return;
+		}
+		
+		final File dir = Dialogue.directoryChooser().showDialog(stage);
+		
+		if (dir == null) {
+			return;
+		}	
+		
+		createTask(new Task<Boolean>() {
+
+			@Override
+			protected Boolean call() throws Exception {
+				
+				final int size = treeView.getRoot().getChildren().size();
+				
+				for (int i = 0; i < size; i++) {
+					
+					TreeItem<String> archive = treeView.getRoot().getChildren().get(i);
+					
+					for (TreeItem<String> entry : archive.getChildren()) {
+						
+						ImageView imageView = (ImageView) entry.getGraphic();
+						
+						try {
+						
+							ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, entry.getValue() + ".png"));
+						} catch (IOException e) {					
+							e.printStackTrace();
+							continue;
+						}
+						
+					}
+					
+					double progress = ((double)(i + 1) / size) * 100;
+					
+					updateProgress((i + 1), size);
+					updateMessage(String.format("%.2f%s", progress, "%"));
+					
+				}
+				
+				Platform.runLater(() -> {
+					Dialogue.openDirectory("Would you like to view these files?", dir);
+				});
+
+				return true;
+			}
+			
+		});
+		
+
 	}
 	
 	@FXML
