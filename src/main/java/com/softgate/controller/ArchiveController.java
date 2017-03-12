@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Map.Entry;
@@ -81,6 +83,8 @@ public final class ArchiveController implements Initializable {
 	private double xOffset, yOffset;
 
 	private Stage stage;
+	
+	private final Map<File, Archive> archives = new HashMap<>();
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -235,7 +239,9 @@ public final class ArchiveController implements Initializable {
 
 					try {
 
-						Archive.decode(fileData);
+						Archive archive = Archive.decode(fileData);
+						
+						archives.put(selectedFile, archive);
 
 						Platform.runLater(() -> {
 							indexes.add(new FileWrapper(selectedFile));
@@ -616,16 +622,17 @@ public final class ArchiveController implements Initializable {
 
 	@FXML
 	private void removeEntry() {
+		
+		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+
+		if (wrapper == null) {
+			return;
+		}
+
 
 		final int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
 
 		if (selectedIndex == -1) {
-			return;
-		}
-
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
-
-		if (wrapper == null) {
 			return;
 		}
 
@@ -642,14 +649,14 @@ public final class ArchiveController implements Initializable {
 
 		Optional<ButtonType> result = option.showAndWait();
 
-		if (result.isPresent()) {
+		if (!result.isPresent()) {
+			return;
+		}
+		
+		ButtonType type = result.get();
 
-			ButtonType type = result.get();
-
-			if (type != ButtonType.YES) {
-				return;
-			}
-
+		if (type != ButtonType.YES) {				
+			return;
 		}
 		
 		createTask(new Task<Boolean>() {
@@ -659,13 +666,16 @@ public final class ArchiveController implements Initializable {
 				try {
 					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
 
+					System.out.println(entryWrapper.getHash());
+					
 					archive.remove(entryWrapper.getHash());
+					
+					System.out.println(archive.getEntries().size());
 
-					byte[] encoded = archive.encode();
-
-					try (FileOutputStream fos = new FileOutputStream(
-							new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);
+					byte[] encoded = archive.encode();					
+					
+					try (FileOutputStream fos = new FileOutputStream(new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
+						fos.write(encoded);						
 					}
 
 					Platform.runLater(() -> {
@@ -674,6 +684,8 @@ public final class ArchiveController implements Initializable {
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
+					
+	
 
 				} catch (IOException e) {
 					e.printStackTrace();

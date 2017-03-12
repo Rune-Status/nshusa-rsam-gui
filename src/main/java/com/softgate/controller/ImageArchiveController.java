@@ -72,10 +72,14 @@ public class ImageArchiveController implements Initializable {
 				
 				ContextMenu contextMenu = new ContextMenu();				
 				
-				MenuItem item1 = new MenuItem("Dump");
-				item1.setOnAction(e -> dump());				
+				MenuItem addMI = new MenuItem("Add");
 				
-				contextMenu.getItems().addAll(item1);
+				MenuItem removeMI = new MenuItem("Remove");
+				
+				MenuItem dumpMI = new MenuItem("Dump");
+				dumpMI.setOnAction(e -> dump());				
+				
+				contextMenu.getItems().addAll(addMI, removeMI, dumpMI);
 				
 				treeView.setContextMenu(contextMenu);
 				
