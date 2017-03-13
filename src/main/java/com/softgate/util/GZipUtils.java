@@ -1,20 +1,18 @@
 package com.softgate.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.zip.GZIPInputStream;
 
-public final class FileUtils {
-
-	private FileUtils() {
-
+/**
+ * A static-utility class that contains useful methods for GZip.
+ * 
+ * @author Freyr
+ */
+public final class GZipUtils {
+	
+	private GZipUtils() {
+		
 	}
-
-	public static byte[] readFile(File file) throws IOException {
-		return Files.readAllBytes(file.toPath());
-	}
-
+	
 	/**
 	 * Determines if a byte array is compressed. The java.util.zip GZip
 	 * implementaiton does not expose the GZip header so it is difficult to
@@ -26,7 +24,7 @@ public final class FileUtils {
 	 * 
 	 * @throws java.io.IOException if the byte array couldn't be read
 	 */
-	public static boolean isCompressed(byte[] bytes) {
+	public static boolean isGZipped(byte[] bytes) {
 		if ((bytes == null) || (bytes.length < 2)) {
 			return false;
 		} else {

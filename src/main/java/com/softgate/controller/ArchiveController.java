@@ -21,7 +21,6 @@ import com.softgate.model.ArchiveEntryWrapper;
 import com.softgate.model.FileWrapper;
 import com.softgate.util.CompressionUtil;
 import com.softgate.util.Dialogue;
-import com.softgate.util.FileUtils;
 import com.softgate.util.HashUtils;
 import com.softgate.util.StringUtils;
 
@@ -199,7 +198,6 @@ public final class ArchiveController implements Initializable {
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);  
 
 		tableView.setItems(sortedData);
-
 	}
 
 	private static class AttachmentListCell extends ListCell<FileWrapper> {
@@ -235,7 +233,7 @@ public final class ArchiveController implements Initializable {
 
 					File selectedFile = selectedFiles.get(i);
 
-					byte[] fileData = FileUtils.readFile(selectedFile);
+					byte[] fileData = Files.readAllBytes(selectedFile.toPath());
 
 					try {
 
@@ -1009,5 +1007,5 @@ public final class ArchiveController implements Initializable {
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
-
+	
 }

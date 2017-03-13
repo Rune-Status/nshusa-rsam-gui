@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -18,7 +19,7 @@ import com.softgate.fs.FileStore;
 import com.softgate.fs.IndexedFileSystem;
 import com.softgate.model.StoreEntryWrapper;
 import com.softgate.util.Dialogue;
-import com.softgate.util.FileUtils;
+import com.softgate.util.GZipUtils;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -97,11 +98,60 @@ public final class StoreController implements Initializable {
 			if (selectedIndex < 0) {
 				return;
 			}
-
+			
 			if (cache == null) {
 				return;
 			}
-
+			
+			if (selectedIndex == 0) {
+				
+				ContextMenu context = new ContextMenu();
+				
+				MenuItem addMI = new MenuItem("Add");
+				addMI.setOnAction(e -> addEntry());
+				
+				MenuItem renameMI = new MenuItem("Rename");
+				renameMI.setOnAction(e -> renameArchive());
+				
+				MenuItem removeMI = new MenuItem("Remove");
+				removeMI.setOnAction(e -> removeEntry());
+				
+				MenuItem replaceMI = new MenuItem("Replace");
+				replaceMI.setOnAction(e -> replaceEntry());
+				
+				MenuItem dumpMI = new MenuItem("Dump");
+				dumpMI.setOnAction(e -> dumpEntry());
+				
+				MenuItem clearMI = new MenuItem("Clear");
+				clearMI.setOnAction(e -> clearIndex());
+				
+				context.getItems().addAll(addMI, renameMI, removeMI, replaceMI, dumpMI, clearMI);
+				
+				tableView.setContextMenu(context);
+				
+			} else {
+				ContextMenu context = new ContextMenu();
+				
+				MenuItem addMI = new MenuItem("Add");
+				addMI.setOnAction(e -> addEntry());
+				
+				MenuItem removeMI = new MenuItem("Remove");
+				removeMI.setOnAction(e -> removeEntry());
+				
+				MenuItem replaceMI = new MenuItem("Replace");
+				replaceMI.setOnAction(e -> replaceEntry());
+				
+				MenuItem dumpMI = new MenuItem("Dump");
+				dumpMI.setOnAction(e -> dumpEntry());
+				
+				MenuItem clearMI = new MenuItem("Clear");
+				clearMI.setOnAction(e -> clearIndex());
+				
+				context.getItems().addAll(addMI, removeMI, replaceMI, dumpMI, clearMI);
+				
+				tableView.setContextMenu(context);
+			}
+			
 			populateTable(selectedIndex);
 
 		});
@@ -266,7 +316,7 @@ public final class StoreController implements Initializable {
 						fileData = new byte[0];
 					}
 
-					boolean gzipped = FileUtils.isCompressed(fileData);
+					boolean gzipped = GZipUtils.isGZipped(fileData);
 
 					if (storeId == 0) {
 
@@ -496,7 +546,7 @@ public final class StoreController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@FXML
 	private void addEntry() {
 
@@ -530,7 +580,7 @@ public final class StoreController implements Initializable {
 
 					}
 
-					byte[] data = FileUtils.readFile(file);
+					byte[] data = Files.readAllBytes(file.toPath());
 
 					store.writeFile(fileId, data, data.length);
 
@@ -633,7 +683,7 @@ public final class StoreController implements Initializable {
 			protected Boolean call() throws Exception {
 				final FileStore store = cache.getStore(selectedIndex);
 
-				final byte[] data = FileUtils.readFile(selectedFile);
+				final byte[] data = Files.readAllBytes(selectedFile.toPath());
 
 				store.writeFile(selectedEntry, data, data.length);
 
@@ -954,3 +1004,4 @@ public final class StoreController implements Initializable {
 	}
 
 }
+

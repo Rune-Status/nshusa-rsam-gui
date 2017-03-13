@@ -24,9 +24,6 @@
                <VBox.margin>
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
-               <tooltip>
-                  <Tooltip text="These are called &quot;Stores&quot; they store other files" />
-               </tooltip>
             </ListView>
             <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
@@ -53,24 +50,9 @@
                <VBox.margin>
                   <Insets right="5.0" top="5.0" />
                </VBox.margin>
-               <contextMenu>
-                  <ContextMenu>
-                    <items>
-                      <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Add" />
-                        <MenuItem mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
-                        <MenuItem mnemonicParsing="false" onAction="#removeEntry" text="Remove" />
-                        <MenuItem mnemonicParsing="false" onAction="#replaceEntry" text="Replace" />
-                        <MenuItem mnemonicParsing="false" onAction="#dumpEntry" text="Dump" />
-                        <MenuItem mnemonicParsing="false" onAction="#clearIndex" text="Clear" />
-                    </items>
-                  </ContextMenu>
-               </contextMenu>
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
-               <tooltip>
-                  <Tooltip text="These files are called &quot;Store Entries&quot; they are files found within a &quot;Store&quot;" />
-               </tooltip>
             </TableView>
             <VBox>
                <children>
