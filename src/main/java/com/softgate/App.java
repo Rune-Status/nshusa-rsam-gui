@@ -331,7 +331,7 @@ public class App extends Application {
 						
 						String[] split = line.split(":");
 						
-						AppData.commonHashNames.put(Integer.parseInt(split[0]), split[1]);
+						AppData.commonHashNames.put(Integer.parseInt(split[1]), split[0]);
 						
 					}
 
