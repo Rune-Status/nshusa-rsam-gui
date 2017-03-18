@@ -492,7 +492,7 @@ public final class ArchiveController implements Initializable {
 	private synchronized void saveHashes() {
 		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.hashResourcePath.toFile()))) {
 			for (Entry<Integer, String> set : AppData.commonHashNames.entrySet()) {
-				writer.println(set.getKey() + ":" + set.getValue());
+				writer.println(set.getValue() + ":" + set.getKey());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

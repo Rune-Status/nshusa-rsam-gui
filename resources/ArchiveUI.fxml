@@ -60,7 +60,7 @@
                   <ContextMenu>
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Add" />
-                        <MenuItem mnemonicParsing="false" text="Rename" />
+                        <MenuItem mnemonicParsing="false" onAction="#renameEntry" text="Rename" />
                         <MenuItem mnemonicParsing="false" onAction="#identifyHash" text="Identify" />
                         <MenuItem mnemonicParsing="false" onAction="#removeEntry" text="Remove" />
                         <MenuItem mnemonicParsing="false" onAction="#replaceEntry" text="Replace" />
