@@ -27,9 +27,6 @@
                <VBox.margin>
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
-               <tooltip>
-                  <Tooltip text="These are called &quot;Archives&quot;, they are binary directories that store binary files" />
-               </tooltip>
             </ListView>
             <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
@@ -69,9 +66,6 @@
                     </items>
                   </ContextMenu>
                </contextMenu>
-               <tooltip>
-                  <Tooltip text="These are called &quot;ArchiveEntries&quot; they are binary files that are stored in a single binary directory called an &quot;Archive&quot;" />
-               </tooltip>
                <columnResizePolicy>
                   <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                </columnResizePolicy>
