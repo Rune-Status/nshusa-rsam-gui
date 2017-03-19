@@ -318,6 +318,8 @@ public class App extends Application {
 						writer.println("model_crc:-1761598724");
 						writer.println("badenc.txt:1648736955");
 						writer.println("button_brown.dat:1451391714");
+						writer.println("mapedge.dat:1362520410");
+						writer.println("pen.dat:902321338");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
