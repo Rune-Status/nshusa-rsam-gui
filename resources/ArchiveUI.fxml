@@ -16,8 +16,6 @@
                <contextMenu>
                   <ContextMenu>
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#createArchive" text="Create" />
-                        <MenuItem mnemonicParsing="false" onAction="#addArchive" text="Add" />
                         <MenuItem mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
                         <MenuItem mnemonicParsing="false" onAction="#removeArchive" text="Remove" />
                         <MenuItem mnemonicParsing="false" onAction="#dumpArchive" text="Dump" />
@@ -159,25 +157,13 @@
             </StackPane>
             <HBox>
                <children>
-                  <Button fx:id="createArchiveBtn" mnemonicParsing="false" onAction="#createArchive" text="Create">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </Button>
-                <Button fx:id="addFileBtn" mnemonicParsing="false" onAction="#addArchive" text="Add">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                     <tooltip>
-                        <Tooltip text="This button loads the cache" />
-                     </tooltip>
-                  </Button>
+                  <Button mnemonicParsing="false" onAction="#createArchive" text="Create" />
+                  <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
                   <Button fx:id="deleteEntryBtn" mnemonicParsing="false" onAction="#removeArchive" text="Remove">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>
                   </Button>
-                  <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
                   <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearProgram" text="Clear">
                      <HBox.margin>
                         <Insets />

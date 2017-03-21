@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.softgate.model.ArchiveMeta;
+
 import javafx.scene.image.Image;
 
 public final class AppData {
@@ -38,7 +40,7 @@ public final class AppData {
 	
 	public static final Map<Integer, String> storeNames = new HashMap<>();
 	
-	public static final Map<Integer, String> archiveNames = new HashMap<>();
+	public static final Map<Integer, ArchiveMeta> archiveMetas = new HashMap<>();
 	
 	public static final Map<Integer, String> commonHashNames = new HashMap<>();
 	

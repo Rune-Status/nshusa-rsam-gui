@@ -7,18 +7,18 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Map.Entry;
 
 import com.softgate.AppData;
+import com.softgate.fs.FileStore;
+import com.softgate.fs.IndexedFileSystem;
 import com.softgate.fs.binary.Archive;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
 import com.softgate.model.ArchiveEntryWrapper;
-import com.softgate.model.FileWrapper;
+import com.softgate.model.ArchiveWrapper;
 import com.softgate.util.CompressionUtil;
 import com.softgate.util.Dialogue;
 import com.softgate.util.HashUtils;
@@ -52,11 +52,11 @@ import javafx.util.Duration;
 public final class ArchiveController implements Initializable {
 
 	@FXML
-	private ListView<FileWrapper> listView;
+	private ListView<ArchiveWrapper> listView;
 
 	final ObservableList<ArchiveEntryWrapper> data = FXCollections.observableArrayList();
 
-	final ObservableList<FileWrapper> indexes = FXCollections.observableArrayList();
+	final ObservableList<ArchiveWrapper> indexes = FXCollections.observableArrayList();
 
 	@FXML
 	private TableView<ArchiveEntryWrapper> tableView;
@@ -83,7 +83,7 @@ public final class ArchiveController implements Initializable {
 
 	private Stage stage;
 	
-	private final Map<File, Archive> archives = new HashMap<>();
+	public IndexedFileSystem cache;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -98,21 +98,23 @@ public final class ArchiveController implements Initializable {
 
 			data.clear();
 
-			if (newSelection == null) {
+			if (newSelection == null || cache == null) {
 				return;
 			}
-
-			final File selectedFile = newSelection.getFile();
+			
+			if (newSelection.getId() < 0) {
+				return;
+			}
 			
 			createTask(new Task<Boolean>() {
 
 				@Override
 				protected Boolean call() throws Exception {
-					try {
+					try {					
 
-						final byte[] fileData = Files.readAllBytes(selectedFile.toPath());
+						FileStore store = cache.getStore(0);
 						
-						final Archive archive = Archive.decode(fileData);
+						final Archive archive = Archive.decode(store.readFile(newSelection.getId()));
 						
 						final int entries = archive.getEntries().size();
 						
@@ -140,7 +142,7 @@ public final class ArchiveController implements Initializable {
 
 		});
 
-		FilteredList<FileWrapper> filteredIndexes = new FilteredList<>(indexes, p -> true);
+		FilteredList<ArchiveWrapper> filteredIndexes = new FilteredList<>(indexes, p -> true);
 
 		indexTf.textProperty().addListener((observable, oldValue, newValue) -> {
 			filteredIndexes.setPredicate(idx -> {
@@ -162,9 +164,9 @@ public final class ArchiveController implements Initializable {
 
 		listView.setItems(filteredIndexes);
 
-		listView.setCellFactory(new Callback<ListView<FileWrapper>, ListCell<FileWrapper>>() {
+		listView.setCellFactory(new Callback<ListView<ArchiveWrapper>, ListCell<ArchiveWrapper>>() {
 			@Override
-			public ListCell<FileWrapper> call(ListView<FileWrapper> list) {
+			public ListCell<ArchiveWrapper> call(ListView<ArchiveWrapper> list) {
 				return new AttachmentListCell();
 			}
 		});
@@ -200,9 +202,9 @@ public final class ArchiveController implements Initializable {
 		tableView.setItems(sortedData);
 	}
 
-	private static class AttachmentListCell extends ListCell<FileWrapper> {
+	private static class AttachmentListCell extends ListCell<ArchiveWrapper> {
 		@Override
-		public void updateItem(FileWrapper item, boolean empty) {
+		public void updateItem(ArchiveWrapper item, boolean empty) {
 			super.updateItem(item, empty);
 			if (empty) {
 				setGraphic(null);
@@ -218,49 +220,16 @@ public final class ArchiveController implements Initializable {
 	@FXML
 	private void addArchive() {
 
-		final List<File> selectedFiles = Dialogue.fileChooser().showOpenMultipleDialog(stage);
-
-		if (selectedFiles == null) {
+	}
+	
+	public void initArchive(int id) {
+		Optional<ArchiveWrapper> result = indexes.stream().filter(it -> it.getId() == id).findFirst();
+		
+		if (result.isPresent()) {
 			return;
 		}
-
-		createTask(new Task<Boolean>() {
-
-			@Override
-			protected Boolean call() throws Exception {
-
-				for (int i = 0; i < selectedFiles.size(); i++) {
-
-					File selectedFile = selectedFiles.get(i);
-
-					byte[] fileData = Files.readAllBytes(selectedFile.toPath());
-
-					try {
-
-						Archive archive = Archive.decode(fileData);
-						
-						archives.put(selectedFile, archive);
-
-						Platform.runLater(() -> {
-							indexes.add(new FileWrapper(selectedFile));
-						});
-
-						double progress = (double) ((i + 1) / selectedFiles.size()) * 100;
-
-						updateMessage(String.format("%.2f%s", progress, "%"));
-						updateProgress((i + 1), selectedFiles.size());
-
-					} catch (Exception ex) {
-						continue;
-					}
-
-				}
-
-				return true;
-			}
-
-		});
-
+		
+		indexes.add(new ArchiveWrapper(id));
 	}
 
 	@FXML
@@ -271,30 +240,23 @@ public final class ArchiveController implements Initializable {
 		if (!result.isPresent()) {
 			return;
 		}
-
-		File dir = Dialogue.directoryChooser().showDialog(stage);
-
-		if (dir == null) {
-			return;
-		}
 		
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
+				
+				FileStore store = cache.getStore(0);
+				
 				Archive archive = Archive.create();
 
 				try {
 					byte[] encoded = archive.encode();
-
-					File file = new File(dir, result.get());
-
-					try (FileOutputStream fos = new FileOutputStream(file)) {
-						fos.write(encoded);
-					}
+					
+					store.writeFile(store.getFileCount(), encoded, encoded.length);
 
 					Platform.runLater(() -> {
-						indexes.add(new FileWrapper(file));
+						indexes.add(new ArchiveWrapper(store.getFileCount()));
 					});
 					
 					updateMessage("100%");
@@ -313,7 +275,7 @@ public final class ArchiveController implements Initializable {
 	@FXML
 	private void clearArchive() {
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -341,16 +303,16 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.create();
-
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
+					
 					archive.getEntries().clear();
 
 					byte[] encoded = archive.encode();
-
-					try (FileOutputStream fos = new FileOutputStream(
-							new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);
-					}
+					
+					store.writeFile(wrapper.getId(), encoded, encoded.length);
 
 					Platform.runLater(() -> {
 						data.clear();
@@ -374,7 +336,7 @@ public final class ArchiveController implements Initializable {
 
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (selectedIndex == -1 || wrapper == null) {
 			return;
@@ -390,17 +352,13 @@ public final class ArchiveController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				File file = new File(wrapper.getFile().getParentFile(), result.get());
-
-				if (wrapper.getFile().renameTo(file)) {
 					Platform.runLater(() -> {
-						indexes.set(selectedIndex, new FileWrapper(file));
+						indexes.set(selectedIndex, new ArchiveWrapper(wrapper.getId()));
 					});
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
-					
-				}
+
 				return true;
 			}
 			
@@ -422,7 +380,7 @@ public final class ArchiveController implements Initializable {
 			return;
 		}
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -439,7 +397,10 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 
 					ArchiveEntry entry = archive.getEntry(entryWrapper.getHash());
 
@@ -471,10 +432,8 @@ public final class ArchiveController implements Initializable {
 					saveHashes();
 
 					byte[] encoded = archive.encode();
-
-					try (FileOutputStream fos = new FileOutputStream(new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);
-					}
+					
+					store.writeFile(wrapper.getId(), encoded, encoded.length);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -503,48 +462,21 @@ public final class ArchiveController implements Initializable {
 	private void removeArchive() {
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
-
-		if (selectedIndex == -1 || wrapper == null) {
+		if (selectedIndex == -1) {
 			return;
 		}
-
-		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to delete this archive?",
-				"This archive will be deleted permanently.");
-
-		option.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-
-		Optional<ButtonType> result = option.showAndWait();
-
-		if (result.isPresent()) {
-
-			if (result.get() == ButtonType.YES) {
-				
-				createTask(new Task<Boolean>() {
-
-					@Override
-					protected Boolean call() throws Exception {
-						if (wrapper.getFile().delete()) {
-							Platform.runLater(() -> {
-								indexes.remove(selectedIndex);
-							});
-							
-							updateMessage("100%");
-							updateProgress(1, 1);
-							
-						}
-						return true;
-					}
-					
-				});
-
-			}
-			
-		}
+		
+		indexes.remove(selectedIndex);
 	}
 
 	@FXML
 	private void addEntry() {
+		
+		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+
+		if (selectedIndex == -1) {
+			return;
+		}
 
 		List<File> selectedFiles = Dialogue.fileChooser().showOpenMultipleDialog(stage);
 
@@ -552,7 +484,7 @@ public final class ArchiveController implements Initializable {
 			return;
 		}
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -563,7 +495,10 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 					
 					for (int i = 0; i< selectedFiles.size(); i++) {
 						try {
@@ -604,9 +539,7 @@ public final class ArchiveController implements Initializable {
 
 					byte[] encoded = archive.encode();
 
-					try (FileOutputStream fos = new FileOutputStream(new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);
-					}
+					store.writeFile(wrapper.getId(), encoded, encoded.length);
 
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -621,7 +554,7 @@ public final class ArchiveController implements Initializable {
 	@FXML
 	private void removeEntry() {
 		
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -662,7 +595,10 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 
 					System.out.println(entryWrapper.getHash());
 					
@@ -671,9 +607,9 @@ public final class ArchiveController implements Initializable {
 					System.out.println(archive.getEntries().size());
 
 					byte[] encoded = archive.encode();					
-					
-					try (FileOutputStream fos = new FileOutputStream(new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);						
+
+					if (!archive.getEntries().isEmpty()) {
+						store.writeFile(wrapper.getId(), encoded, encoded.length);
 					}
 
 					Platform.runLater(() -> {
@@ -716,7 +652,7 @@ public final class ArchiveController implements Initializable {
 			return;
 		}
 
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -727,7 +663,10 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 
 					try {
 
@@ -764,11 +703,8 @@ public final class ArchiveController implements Initializable {
 					saveHashes();
 
 					byte[] encoded = archive.encode();
-
-					try (FileOutputStream fos = new FileOutputStream(
-							new File(wrapper.getFile().getParentFile(), wrapper.getName()))) {
-						fos.write(encoded);
-					}
+					
+					store.writeFile(wrapper.getId(), encoded, encoded.length);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -785,7 +721,7 @@ public final class ArchiveController implements Initializable {
 	
 	@FXML
 	private void dumpArchive() {
-		final FileWrapper wrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper wrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (wrapper == null) {
 			return;
@@ -802,7 +738,10 @@ public final class ArchiveController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				try {
-					Archive archive = Archive.decode(Files.readAllBytes(wrapper.getFile().toPath()));
+					
+					FileStore store = cache.getStore(0);
+					
+					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 					
 					int entries = archive.getEntries().size();
 					
@@ -839,7 +778,7 @@ public final class ArchiveController implements Initializable {
 
 	@FXML
 	private void dumpEntry() {
-		final FileWrapper fileWrapper = listView.getSelectionModel().getSelectedItem();
+		final ArchiveWrapper fileWrapper = listView.getSelectionModel().getSelectedItem();
 
 		if (fileWrapper == null) {
 			return;
@@ -865,8 +804,10 @@ public final class ArchiveController implements Initializable {
 						if (archiveWrapper == null) {
 							continue;
 						}
+						
+						FileStore store = cache.getStore(0);
 												
-						Archive archive = Archive.decode(Files.readAllBytes(fileWrapper.getFile().toPath()));
+						Archive archive = Archive.decode(store.readFile(fileWrapper.getId()));
 						
 						byte[] fileData = archive.readFile(archiveWrapper.getHash());
 						
@@ -1006,6 +947,10 @@ public final class ArchiveController implements Initializable {
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
+	}
+	
+	public Stage getStage() {
+		return stage;
 	}
 	
 }

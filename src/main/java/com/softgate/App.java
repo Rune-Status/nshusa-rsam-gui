@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 
 import com.softgate.controller.StoreController;
+import com.softgate.model.ArchiveMeta;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -81,15 +82,15 @@ public class App extends Application {
 				
 				if (!Files.exists(AppData.archiveResourcePath)) {
 					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-						writer.println("0:empty");
-						writer.println("1:title screen.jag");
-						writer.println("2:config.jag");
-						writer.println("3:interface.jag");
-						writer.println("4:2d graphics.jag");
-						writer.println("5:version list.jag");
-						writer.println("6:textures.jag");
-						writer.println("7:chat system.jag");
-						writer.println("8:sound effects.jag");
+						writer.println("0:empty:false");
+						writer.println("1:title:true");
+						writer.println("2:config:false");
+						writer.println("3:interface:false");
+						writer.println("4:media:true");
+						writer.println("5:versionlist:false");
+						writer.println("6:texture:true");
+						writer.println("7:wordenc:false");
+						writer.println("8:sound:false");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -103,7 +104,7 @@ public class App extends Application {
 						
 						String[] split = line.split(":");
 						
-						AppData.archiveNames.put(Integer.parseInt(split[0]), split[1]);
+						AppData.archiveMetas.put(Integer.parseInt(split[0]), new ArchiveMeta(Integer.parseInt(split[0]), split[1], Boolean.parseBoolean(split[2])));
 						
 					}
 

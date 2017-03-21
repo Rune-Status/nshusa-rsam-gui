@@ -17,6 +17,8 @@ import com.softgate.App;
 import com.softgate.AppData;
 import com.softgate.fs.FileStore;
 import com.softgate.fs.IndexedFileSystem;
+import com.softgate.fs.binary.Archive;
+import com.softgate.model.ArchiveMeta;
 import com.softgate.model.StoreEntryWrapper;
 import com.softgate.util.Dialogue;
 import com.softgate.util.GZipUtils;
@@ -98,60 +100,64 @@ public final class StoreController implements Initializable {
 			if (selectedIndex < 0) {
 				return;
 			}
-			
+
 			if (cache == null) {
 				return;
 			}
-			
+
 			if (selectedIndex == 0) {
-				
+
 				ContextMenu context = new ContextMenu();
-				
+
+				// TODO add this
+				MenuItem openMI = new MenuItem("Open");
+				openMI.setOnAction(e -> openArchive());
+
 				MenuItem addMI = new MenuItem("Add");
 				addMI.setOnAction(e -> addEntry());
-				
+
 				MenuItem renameMI = new MenuItem("Rename");
 				renameMI.setOnAction(e -> renameArchive());
-				
+
 				MenuItem removeMI = new MenuItem("Remove");
 				removeMI.setOnAction(e -> removeEntry());
-				
+
 				MenuItem replaceMI = new MenuItem("Replace");
 				replaceMI.setOnAction(e -> replaceEntry());
-				
+
 				MenuItem dumpMI = new MenuItem("Dump");
 				dumpMI.setOnAction(e -> dumpEntry());
-				
+
 				MenuItem clearMI = new MenuItem("Clear");
 				clearMI.setOnAction(e -> clearIndex());
-				
-				context.getItems().addAll(addMI, renameMI, removeMI, replaceMI, dumpMI, clearMI);
-				
+
+				context.getItems().addAll(openMI, addMI, renameMI, removeMI, replaceMI, dumpMI, clearMI);
+
 				tableView.setContextMenu(context);
-				
+
 			} else {
 				ContextMenu context = new ContextMenu();
-				
+
 				MenuItem addMI = new MenuItem("Add");
 				addMI.setOnAction(e -> addEntry());
-				
+
 				MenuItem removeMI = new MenuItem("Remove");
 				removeMI.setOnAction(e -> removeEntry());
-				
+
 				MenuItem replaceMI = new MenuItem("Replace");
 				replaceMI.setOnAction(e -> replaceEntry());
-				
+
 				MenuItem dumpMI = new MenuItem("Dump");
 				dumpMI.setOnAction(e -> dumpEntry());
-				
+
 				MenuItem clearMI = new MenuItem("Clear");
 				clearMI.setOnAction(e -> clearIndex());
-				
+
 				context.getItems().addAll(addMI, removeMI, replaceMI, dumpMI, clearMI);
-				
+
 				tableView.setContextMenu(context);
 			}
-			
+
 			populateTable(selectedIndex);
 
 		});
@@ -289,7 +295,7 @@ public final class StoreController implements Initializable {
 		if (storeId < 0) {
 			return;
 		}
-		
+
 		createTask(new Task<Boolean>() {
 
 			@Override
@@ -303,9 +309,9 @@ public final class StoreController implements Initializable {
 				Platform.runLater(() -> {
 					data.clear();
 				});
-				
+
 				final List<StoreEntryWrapper> storeWrappers = new ArrayList<>();
-				
+
 				int entries = store.getFileCount();
 
 				for (int i = 0; i < entries; i++) {
@@ -319,33 +325,82 @@ public final class StoreController implements Initializable {
 					boolean gzipped = GZipUtils.isGZipped(fileData);
 
 					if (storeId == 0) {
-
-						String name = AppData.archiveNames.get(i);
-
-						if (name == null) {
-							name = Integer.toString(i);
-						}
 						
+						ArchiveMeta meta = AppData.archiveMetas.get(i);
+
+						String name = meta == null ? "unknown" : meta.getName();
+
 						storeWrappers.add(new StoreEntryWrapper(i, name, fileData.length));
 					} else {
 						storeWrappers.add(new StoreEntryWrapper(i, gzipped ? i + ".gz" : i + ".dat", fileData.length));
 					}
-					
-					double progress = ((double)(i + 1) / entries) * 100;
-					
+
+					double progress = ((double) (i + 1) / entries) * 100;
+
 					updateMessage(String.format("%.2f%s", progress, "%"));
 					updateProgress((i + 1), entries);
 
 				}
-				
+
 				Platform.runLater(() -> {
 					data.addAll(storeWrappers);
 				});
 
 				return true;
 			}
-			
+
 		});
+
+	}
+
+	private ArchiveController archiveController;
+
+	@FXML
+	private void openArchive() {
+		StoreEntryWrapper wrapper = tableView.getSelectionModel().getSelectedItem();
+
+		if (wrapper == null) {
+			return;
+		}
+
+		try {
+			
+			FileStore store = cache.getStore(0);
+			
+			// this is to check if the archive could be read before adding it to the archive viewer			
+			@SuppressWarnings("unused")
+			Archive archive = Archive.decode(store.readFile(wrapper.getId()));
+
+			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ArchiveUI.fxml"));
+
+			Parent root = (Parent) loader.load();
+
+			if (archiveController == null || !archiveController.getStage().isShowing()) {
+				archiveController = (ArchiveController) loader.getController();
+
+				archiveController.cache = cache;
+				archiveController.initArchive(wrapper.getId());
+
+				Stage stage = new Stage();
+
+				archiveController.setStage(stage);
+				stage.setTitle("Archive Editor");
+				Scene scene = new Scene(root);
+				scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
+				stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+				stage.setScene(scene);
+				stage.initStyle(StageStyle.TRANSPARENT);
+				stage.setResizable(false);
+				stage.centerOnScreen();
+				stage.setTitle("Archive Editor");
+				stage.show();
+			} else {
+				archiveController.initArchive(wrapper.getId());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Dialogue.showWarning("Could not read archive.");
+		}
 
 	}
 
@@ -363,9 +418,9 @@ public final class StoreController implements Initializable {
 			e1.printStackTrace();
 			return;
 		}
-		
+
 		final FileStore store = cache.getStore(nextIndex);
-		
+
 		if (store == null) {
 			return;
 		}
@@ -397,7 +452,7 @@ public final class StoreController implements Initializable {
 				protected Boolean call() throws Exception {
 
 					saveStoreCookies();
-					
+
 					double progress = 100.00;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
@@ -411,7 +466,7 @@ public final class StoreController implements Initializable {
 		}
 
 	}
-	
+
 	private synchronized void saveStoreCookies() {
 		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
 			for (Entry<Integer, String> set : AppData.storeNames.entrySet()) {
@@ -505,14 +560,20 @@ public final class StoreController implements Initializable {
 				Dialogue.showWarning("Name must be shorter than 20 characters");
 				return;
 			}
+			
+			ArchiveMeta meta = AppData.archiveMetas.get(selectedEntry);
+			
+			if (meta == null) {
+				return;
+			}
 
-			AppData.archiveNames.put(selectedEntry, name);
+			AppData.archiveMetas.put(selectedEntry, new ArchiveMeta(selectedEntry, name, meta.isImageArchive()));
 
 			createTask(new Task<Boolean>() {
 
 				@Override
 				protected Boolean call() throws Exception {
-					
+
 					saveArchiveCookies();
 
 					FileStore store = cache.getStore(selectedIndex);
@@ -536,17 +597,17 @@ public final class StoreController implements Initializable {
 
 		}
 	}
-	
+
 	private synchronized void saveArchiveCookies() {
 		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-			for (Entry<Integer, String> set : AppData.archiveNames.entrySet()) {
-				writer.println(set.getKey() + ":" + set.getValue());
+			for (Entry<Integer, ArchiveMeta> set : AppData.archiveMetas.entrySet()) {
+				writer.println(set.getKey() + ":" + set.getValue().getName() + ":" + set.getValue().isImageArchive());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@FXML
 	private void addEntry() {
 
@@ -617,21 +678,22 @@ public final class StoreController implements Initializable {
 		if (selectedFile == -1) {
 			return;
 		}
-		
-		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?", "This file will be deleted permanently.");
-		
+
+		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?",
+				"This file will be deleted permanently.");
+
 		option.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-		
+
 		Optional<ButtonType> result = option.showAndWait();
-		
+
 		if (result.isPresent()) {
-			
+
 			ButtonType type = result.get();
-			
+
 			if (type != ButtonType.YES) {
 				return;
 			}
-			
+
 		}
 
 		createTask(new Task<Boolean>() {
@@ -700,7 +762,7 @@ public final class StoreController implements Initializable {
 
 		});
 	}
-	
+
 	@FXML
 	private void dumpEntry() {
 		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
@@ -708,7 +770,7 @@ public final class StoreController implements Initializable {
 		if (selectedIndex == -1 || cache == null) {
 			return;
 		}
-		
+
 		final List<Integer> selectedIndexes = tableView.getSelectionModel().getSelectedIndices();
 
 		final List<StoreEntryWrapper> selectedEntries = tableView.getSelectionModel().getSelectedItems();
@@ -728,12 +790,12 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				final FileStore store = cache.getStore(selectedIndex);
-				
+
 				for (int i = 0; i < selectedIndexes.size(); i++) {
 					int selectedEntryIndex = selectedIndexes.get(i);
-					
+
 					StoreEntryWrapper storeWrapper = selectedEntries.get(i);
-					
+
 					byte[] fileData = store.readFile(selectedEntryIndex);
 
 					if (fileData == null) {
@@ -749,11 +811,11 @@ public final class StoreController implements Initializable {
 						e.printStackTrace();
 					}
 
-					final double progress = ((double)(i + 1) / selectedIndexes.size()) * 100;
+					final double progress = ((double) (i + 1) / selectedIndexes.size()) * 100;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
-					updateProgress((i + 1), selectedIndexes.size());					
-					
+					updateProgress((i + 1), selectedIndexes.size());
+
 				}
 
 				Platform.runLater(() -> {
@@ -838,21 +900,22 @@ public final class StoreController implements Initializable {
 		}
 
 		final FileStore store = cache.getStore(selectedIndex);
-		
-		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?", "All files will be deleted permanently.");
-		
+
+		Dialogue.OptionMessage option = new Dialogue.OptionMessage("Are you sure you want to do this?",
+				"All files will be deleted permanently.");
+
 		option.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-		
+
 		Optional<ButtonType> result = option.showAndWait();
-		
+
 		if (result.isPresent()) {
-			
+
 			ButtonType type = result.get();
-			
+
 			if (type != ButtonType.YES) {
 				return;
 			}
-			
+
 		}
 
 		createTask(new Task<Boolean>() {
@@ -899,7 +962,7 @@ public final class StoreController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@FXML
 	private void loadImageArchiveEditor() {
 		try {
@@ -1004,4 +1067,3 @@ public final class StoreController implements Initializable {
 	}
 
 }
-
