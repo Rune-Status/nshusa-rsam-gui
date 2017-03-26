@@ -54,7 +54,6 @@
             <HBox BorderPane.alignment="CENTER">
                <children>
                   <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#unpack" text="Unpack" />
-                  <Button fx:id="saveImageBtn" mnemonicParsing="false" onAction="#dumpAll" text="Dump" />
                   <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clear" text="Clear">
                      <HBox.margin>
                         <Insets right="5.0" />

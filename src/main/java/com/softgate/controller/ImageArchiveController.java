@@ -6,10 +6,12 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
 
+import com.softgate.fs.IndexedFileSystem;
 import com.softgate.fs.binary.Archive;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
 import com.softgate.fs.binary.ImageArchive;
@@ -37,80 +39,73 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class ImageArchiveController implements Initializable {
-	
+
 	private Stage stage;
-	
+
 	@FXML
 	private TreeView<String> treeView;
-	
+
 	@FXML
 	private ImageView imageView;
-	
+
 	@FXML
 	private ProgressBar progressBar;
-	
+
 	@FXML
 	private Text progressText;
+
+	public IndexedFileSystem cache;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		treeView.setRoot(new TreeItem<>("Root"));
-		
+
 		treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			
+
 			if (newSelection == null) {
 				return;
 			}
-			
+
 			if (newSelection.isLeaf()) {
-				
+
 				ImageView imageView = (ImageView) newSelection.getGraphic();
-				
+
 				if (imageView == null) {
 					return;
 				}
-				
-				ContextMenu contextMenu = new ContextMenu();				
-				
-				MenuItem addMI = new MenuItem("Add");
-				
-				MenuItem removeMI = new MenuItem("Remove");
-				
+
+				ContextMenu contextMenu = new ContextMenu();
+
 				MenuItem dumpMI = new MenuItem("Dump");
-				dumpMI.setOnAction(e -> dump());				
-				
-				contextMenu.getItems().addAll(addMI, removeMI, dumpMI);
-				
+				dumpMI.setOnAction(e -> dump());
+
+				contextMenu.getItems().add(dumpMI);
+
 				treeView.setContextMenu(contextMenu);
-				
+
 				this.imageView.setImage(imageView.getImage());
-				
+
 			} else {
-				
-				// archive or root
-				
-				ContextMenu contextMenu = new ContextMenu();				
-				
+
+				ContextMenu contextMenu = new ContextMenu();
+
 				MenuItem item1 = new MenuItem("Dump");
 				item1.setOnAction(e -> dump());
-				
-				MenuItem item2 = new MenuItem("Dump All");
-				item2.setOnAction(e -> dumpAll());
-				
-				contextMenu.getItems().addAll(item1, item2);
-				
+
+				contextMenu.getItems().add(item1);
+
 				treeView.setContextMenu(contextMenu);
-				
+
 			}
-			
+
 		});
 	}
-	
-	@FXML
-	private void unpack() {
-		File archiveFile = Dialogue.fileChooser().showOpenDialog(stage);	
+
+	public void initImageArchive(String name, Archive archive) {
 		
-		if (archiveFile == null) {
+		Optional<TreeItem<String>> result = treeView.getRoot().getChildren().stream().filter(it -> it.getValue().equalsIgnoreCase(name)).findFirst();
+		
+		if (result.isPresent()) {
 			return;
 		}
 		
@@ -118,40 +113,96 @@ public class ImageArchiveController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
+
+				TreeItem<String> root = new TreeItem<>(name);
+
+				Platform.runLater(() -> {
+					treeView.getRoot().getChildren().add(root);
+				});
+
+				for (int i = 0; i < archive.getEntries().size(); i++) {
+					ArchiveEntry entry = archive.getEntries().get(i);
+
+					int indexHash = HashUtils.nameToHash("index.dat");
+
+					if (entry.getHash() == indexHash) {
+						continue;
+					}
+
+					TreeItem<String> parent = new TreeItem<String>(StringUtils.getCommonName(entry));
+
+					List<Sprite> sprites = ImageArchive.decode(ByteBuffer.wrap(archive.readFile(entry.getHash())),
+							ByteBuffer.wrap(archive.readFile("index.dat")), true);
+
+					for (int frame = 0; frame < sprites.size(); frame++) {
+						Sprite sprite = sprites.get(frame);
+
+						Image image = SwingFXUtils.toFXImage(sprite.toBufferedImage(), null);
+
+						parent.getChildren().add(new TreeItem<String>(Integer.toString(frame), new ImageView(image)));
+					}
+
+					double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
+
+					updateMessage(String.format("%.2f%s", progress, "%"));
+					updateProgress((i + 1), archive.getEntries().size());
+
+					root.getChildren().add(parent);
+
+				}
+				return true;
+			}
+
+		});
+	}
+
+	@FXML
+	private void unpack() {
+		File archiveFile = Dialogue.fileChooser().showOpenDialog(stage);
+
+		if (archiveFile == null) {
+			return;
+		}
+
+		createTask(new Task<Boolean>() {
+
+			@Override
+			protected Boolean call() throws Exception {
 				try {
-					
+
 					Archive archive = Archive.decode(Files.readAllBytes(archiveFile.toPath()));
-					
+
 					for (int i = 0; i < archive.getEntries().size(); i++) {
 						ArchiveEntry entry = archive.getEntries().get(i);
-						
+
 						int indexHash = HashUtils.nameToHash("index.dat");
-						
+
 						if (entry.getHash() == indexHash) {
 							continue;
 						}
-						
+
 						TreeItem<String> parent = new TreeItem<String>(StringUtils.getCommonName(entry));
-						
-						List<Sprite> sprites = ImageArchive.decode(ByteBuffer.wrap(archive.readFile(entry.getHash())), ByteBuffer.wrap(archive.readFile("index.dat")), true);
-						
+
+						List<Sprite> sprites = ImageArchive.decode(ByteBuffer.wrap(archive.readFile(entry.getHash())),
+								ByteBuffer.wrap(archive.readFile("index.dat")), true);
+
 						for (int frame = 0; frame < sprites.size(); frame++) {
 							Sprite sprite = sprites.get(frame);
-							
+
 							Image image = SwingFXUtils.toFXImage(sprite.toBufferedImage(), null);
-							
+
 							parent.getChildren().add(new TreeItem<String>(i + "_" + frame, new ImageView(image)));
 						}
 
-						double progress = ((double)(i + 1) / archive.getEntries().size()) * 100;
-						
+						double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
+
 						updateMessage(String.format("%.2f%s", progress, "%"));
 						updateProgress((i + 1), archive.getEntries().size());
-						
+
 						Platform.runLater(() -> {
 							treeView.getRoot().getChildren().add(parent);
-						});	
-						
+						});
+
 					}
 
 				} catch (Exception ex) {
@@ -160,39 +211,40 @@ public class ImageArchiveController implements Initializable {
 				}
 				return true;
 			}
-			
+
 		});
-		
+
 	}
-	
+
 	@FXML
 	private void dump() {
 		TreeItem<String> selected = treeView.getSelectionModel().getSelectedItem();
-		
+
 		if (selected == null) {
 			return;
 		}
-		
+
 		final File dir = Dialogue.directoryChooser().showDialog(stage);
-		
+
 		if (dir == null) {
 			return;
 		}
-		
+
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
 				if (selected.isLeaf()) {
-					
-					ImageView imageView = (ImageView)selected.getGraphic();
-					
+
+					ImageView imageView = (ImageView) selected.getGraphic();
+
 					try {
-						ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, selected.getValue() + ".png"));
-						
+						ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png",
+								new File(dir, selected.getValue() + ".png"));
+
 						updateProgress(1, 1);
 						updateMessage("100%");
-						
+
 						Platform.runLater(() -> {
 							Dialogue.openDirectory("Would you like to view this image?", dir);
 						});
@@ -200,103 +252,112 @@ public class ImageArchiveController implements Initializable {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+
+				} else if (selected.getParent().getValue().equalsIgnoreCase("Root")) {
+
+					System.out.println("detected main image archive");
 					
-				} else {
+					File mainFolder = new File(dir, selected.getValue());
 					
-					for (int i = 0; i < selected.getChildren().size(); i++) {
-						TreeItem<String> entry = selected.getChildren().get(i);
+					if (!mainFolder.exists()) {
+						mainFolder.mkdirs();
+					}
+					
+					final int size = selected.getChildren().size();
+					
+					for (int i = 0; i < size; i++) {
 						
-						ImageView imageView = (ImageView)entry.getGraphic();
+						TreeItem<String> archiveTI = selected.getChildren().get(i);
+						
+						String name = archiveTI.getValue().contains(".") ? archiveTI.getValue().substring(0, archiveTI.getValue().lastIndexOf(".")) : archiveTI.getValue();
+
+						File subFolder = new File(mainFolder, name);
+
+						if (!subFolder.exists()) {
+							subFolder.mkdirs();
+						}
 						
 						try {
-							ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, entry.getValue() + ".png"));
-							
-							double progress = ((double) (i + 1) / selected.getChildren().size()) * 100;
-							
-							updateProgress((i + 1), selected.getChildren().size());
-							updateMessage(String.format("%.2f%s", progress, "%"));
+							for (int frame = 0; frame < archiveTI.getChildren().size(); frame++) {
+								TreeItem<String> child = archiveTI.getChildren().get(frame);
+
+								ImageView imageView = (ImageView) child.getGraphic();
+
+								ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png",
+										new File(subFolder, child.getValue() + ".png"));
+
+							}							
 						} catch (IOException e) {
 							e.printStackTrace();
-						}
+						}	
+						
+						double progress = ((double)(i + 1) / selected.getChildren().size()) * 100;
+						
+						updateProgress((i + 1), selected.getChildren().size());
+						updateMessage(String.format("%.2f%s", progress, "%"));
 						
 					}
 					
 					Platform.runLater(() -> {
-						Dialogue.openDirectory("Would you like to view these images?", dir);
+						Dialogue.openDirectory("Would you like to view these images?", mainFolder);
 					});
-					
-				}
-				return true;
-			}
-			
-		});
-		
-	}
-	
-	@FXML
-	private void dumpAll() {
-		if (treeView.getRoot().getChildren().isEmpty()) {
-			return;
-		}
-		
-		final File dir = Dialogue.directoryChooser().showDialog(stage);
-		
-		if (dir == null) {
-			return;
-		}	
-		
-		createTask(new Task<Boolean>() {
 
-			@Override
-			protected Boolean call() throws Exception {
-				
-				final int size = treeView.getRoot().getChildren().size();
-				
-				for (int i = 0; i < size; i++) {
-					
-					TreeItem<String> archive = treeView.getRoot().getChildren().get(i);
-					
-					for (TreeItem<String> entry : archive.getChildren()) {
-						
-						ImageView imageView = (ImageView) entry.getGraphic();
-						
-						try {
-						
-							ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png", new File(dir, entry.getValue() + ".png"));
-						} catch (IOException e) {					
-							e.printStackTrace();
-							continue;
-						}
-						
+				} else {
+
+					File mainFolder = new File(dir, selected.getParent().getValue());
+
+					if (!mainFolder.exists()) {
+						mainFolder.mkdirs();
 					}
 					
-					double progress = ((double)(i + 1) / size) * 100;
-					
-					updateProgress((i + 1), size);
-					updateMessage(String.format("%.2f%s", progress, "%"));
+					String name = selected.getValue().contains(".") ? selected.getValue().substring(0, selected.getValue().lastIndexOf(".")) : selected.getValue();
+
+					File subFolder = new File(mainFolder, name);
+
+					if (!subFolder.exists()) {
+						subFolder.mkdirs();
+					}
+					try {
+						for (int i = 0; i < selected.getChildren().size(); i++) {
+							TreeItem<String> child = selected.getChildren().get(i);
+
+							ImageView imageView = (ImageView) child.getGraphic();
+
+							ImageIO.write(SwingFXUtils.fromFXImage(imageView.getImage(), null), "png",
+									new File(subFolder, child.getValue() + ".png"));
+
+							
+							double progress = ((double)(i + 1) / selected.getChildren().size()) * 100;
+							
+							updateProgress((i + 1), selected.getChildren().size());
+							updateMessage(String.format("%.2f%s", progress, "%"));
+
+						}
+						
+						Platform.runLater(() -> {
+							Dialogue.openDirectory("Would you like to view this image?", subFolder);
+						});
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					
 				}
-				
-				Platform.runLater(() -> {
-					Dialogue.openDirectory("Would you like to view these files?", dir);
-				});
-
 				return true;
 			}
-			
+
 		});
-		
 
 	}
-	
+
 	@FXML
 	private void clear() {
 		treeView.getRoot().getChildren().clear();
 		imageView.setImage(null);
 	}
-	
+
 	private double xOffset, yOffset;
-	
+
 	@FXML
 	private void handleMousePressed(MouseEvent event) {
 		xOffset = event.getSceneX();
@@ -308,7 +369,7 @@ public class ImageArchiveController implements Initializable {
 		stage.setX(event.getScreenX() - xOffset);
 		stage.setY(event.getScreenY() - yOffset);
 	}
-	
+
 	@FXML
 	private void minimizeProgram() {
 
@@ -318,7 +379,7 @@ public class ImageArchiveController implements Initializable {
 
 		stage.setIconified(true);
 	}
-	
+
 	@FXML
 	private void closeProgram() {
 		stage.close();
@@ -331,7 +392,6 @@ public class ImageArchiveController implements Initializable {
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
-	
 
 	private void createTask(Task<?> task) {
 

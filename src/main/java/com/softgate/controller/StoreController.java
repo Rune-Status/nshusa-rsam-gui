@@ -90,48 +90,60 @@ public final class StoreController implements Initializable {
 		extCol.setCellValueFactory(cellData -> cellData.getValue().getExtensionProperty());
 		sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty());
 		iconCol.setCellValueFactory(new PropertyValueFactory<StoreEntryWrapper, ImageView>("image"));
-
-		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
-
-			data.clear();
-
-			final int selectedIndex = newSelection.intValue();
-
-			if (selectedIndex < 0) {
+		
+		tableView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
+			
+			final int selectedRow = newSelection.intValue();
+			
+			final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+			
+			if (selectedIndex == -1 || selectedRow == -1) {
 				return;
 			}
-
-			if (cache == null) {
-				return;
-			}
-
+			
+			System.out.println(selectedIndex + " " + selectedRow);
+			
 			if (selectedIndex == 0) {
 
 				ContextMenu context = new ContextMenu();
 
-				// TODO add this
 				MenuItem openMI = new MenuItem("Open");
-				openMI.setOnAction(e -> openArchive());
+				openMI.setOnAction(e -> openArchive());				
+				context.getItems().add(openMI);
+				
+				ArchiveMeta meta = AppData.archiveMetas.get(selectedRow);
+				
+				if (meta != null) {
+					if (meta.isImageArchive()) {
+						MenuItem viewMI = new MenuItem("View");
+						viewMI.setOnAction(e -> viewArchive());				
+						context.getItems().add(viewMI);
+					}
+				}
 
 				MenuItem addMI = new MenuItem("Add");
-				addMI.setOnAction(e -> addEntry());
+				addMI.setOnAction(e -> addEntry());				
+				context.getItems().add(addMI);
 
 				MenuItem renameMI = new MenuItem("Rename");
-				renameMI.setOnAction(e -> renameArchive());
+				renameMI.setOnAction(e -> renameArchive());				
+				context.getItems().add(renameMI);
 
 				MenuItem removeMI = new MenuItem("Remove");
-				removeMI.setOnAction(e -> removeEntry());
+				removeMI.setOnAction(e -> removeEntry());				
+				context.getItems().add(removeMI);
 
 				MenuItem replaceMI = new MenuItem("Replace");
-				replaceMI.setOnAction(e -> replaceEntry());
+				replaceMI.setOnAction(e -> replaceEntry());				
+				context.getItems().add(replaceMI);
 
 				MenuItem dumpMI = new MenuItem("Dump");
-				dumpMI.setOnAction(e -> dumpEntry());
+				dumpMI.setOnAction(e -> dumpEntry());				
+				context.getItems().add(dumpMI);
 
 				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setOnAction(e -> clearIndex());
-
-				context.getItems().addAll(openMI, addMI, renameMI, removeMI, replaceMI, dumpMI, clearMI);
+				clearMI.setOnAction(e -> clearIndex());				
+				context.getItems().add(clearMI);
 
 				tableView.setContextMenu(context);
 
@@ -157,7 +169,23 @@ public final class StoreController implements Initializable {
 
 				tableView.setContextMenu(context);
 			}
+			
+		});
 
+		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
+
+			data.clear();
+
+			final int selectedIndex = newSelection.intValue();
+
+			if (selectedIndex < 0) {
+				return;
+			}
+
+			if (cache == null) {
+				return;
+			}
+			
 			populateTable(selectedIndex);
 
 		});
@@ -396,6 +424,54 @@ public final class StoreController implements Initializable {
 				stage.show();
 			} else {
 				archiveController.initArchive(wrapper.getId());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			Dialogue.showWarning("Could not read archive.");
+		}
+
+	}
+	
+	private ImageArchiveController imageArchiveController;
+	
+	@FXML
+	private void viewArchive() {
+		StoreEntryWrapper wrapper = tableView.getSelectionModel().getSelectedItem();
+
+		if (wrapper == null) {
+			return;
+		}
+
+		try {
+			
+			FileStore store = cache.getStore(0);
+	
+			Archive archive = Archive.decode(store.readFile(wrapper.getId()));
+
+			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ImageArchiveUI.fxml"));
+
+			Parent root = (Parent) loader.load();
+
+			if (imageArchiveController == null || !imageArchiveController.getStage().isShowing()) {
+				imageArchiveController = (ImageArchiveController) loader.getController();
+
+				imageArchiveController.cache = cache;
+				imageArchiveController.initImageArchive(wrapper.getName(), archive);
+
+				Stage stage = new Stage();
+
+				imageArchiveController.setStage(stage);
+				Scene scene = new Scene(root);
+				scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
+				stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+				stage.setScene(scene);
+				stage.initStyle(StageStyle.TRANSPARENT);
+				stage.setResizable(false);
+				stage.centerOnScreen();
+				stage.setTitle("Image Archive Editor");
+				stage.show();
+			} else {
+				imageArchiveController.initImageArchive(wrapper.getName(), archive);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
