@@ -1,8 +1,8 @@
 # RS2 Asset Manager (RSAM)
 Is a tool to help manage your game assets
 
-## Stable release: 1.03
-[Download](http://www.mediafire.com/file/03k9oamipk6zuhw/rsam-gui-1.03.jar)
+## Stable release: 1.0.4
+[Download](https://github.com/chadalen/rsam-gui/releases/download/1.0.4/rsam-gui.jar)
 
 ![store editor](http://i.imgur.com/DujEQsw.png)
 ![archive editor](http://i.imgur.com/37ADCZN.png)
