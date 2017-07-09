@@ -1,9 +1,9 @@
-package com.softgate.model;
+package io.softgate.model;
 
-import com.softgate.AppData;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
-import com.softgate.util.StringUtils;
 
+import io.softgate.AppData;
+import io.softgate.util.StringUtils;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;

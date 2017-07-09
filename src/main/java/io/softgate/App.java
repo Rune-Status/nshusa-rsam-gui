@@ -1,4 +1,4 @@
-package com.softgate;
+package io.softgate;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,9 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 
-import com.softgate.controller.StoreController;
-import com.softgate.model.ArchiveMeta;
-
+import io.softgate.controller.StoreController;
+import io.softgate.model.ArchiveMeta;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;

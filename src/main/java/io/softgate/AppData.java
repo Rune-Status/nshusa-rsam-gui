@@ -1,4 +1,4 @@
-package com.softgate;
+package io.softgate;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -6,8 +6,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.softgate.model.ArchiveMeta;
-
+import io.softgate.model.ArchiveMeta;
 import javafx.scene.image.Image;
 
 public final class AppData {

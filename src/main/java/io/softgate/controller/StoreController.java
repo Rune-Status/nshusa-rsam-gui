@@ -1,4 +1,4 @@
-package com.softgate.controller;
+package io.softgate.controller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,16 +13,17 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import com.softgate.App;
-import com.softgate.AppData;
+
 import com.softgate.fs.FileStore;
 import com.softgate.fs.IndexedFileSystem;
 import com.softgate.fs.binary.Archive;
-import com.softgate.model.ArchiveMeta;
-import com.softgate.model.StoreEntryWrapper;
-import com.softgate.util.Dialogue;
-import com.softgate.util.GZipUtils;
 
+import io.softgate.App;
+import io.softgate.AppData;
+import io.softgate.model.ArchiveMeta;
+import io.softgate.model.StoreEntryWrapper;
+import io.softgate.util.Dialogue;
+import io.softgate.util.GZipUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

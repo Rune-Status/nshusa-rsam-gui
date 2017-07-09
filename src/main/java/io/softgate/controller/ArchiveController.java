@@ -1,4 +1,4 @@
-package com.softgate.controller;
+package io.softgate.controller;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,18 +12,18 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Map.Entry;
 
-import com.softgate.AppData;
 import com.softgate.fs.FileStore;
 import com.softgate.fs.IndexedFileSystem;
 import com.softgate.fs.binary.Archive;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
-import com.softgate.model.ArchiveEntryWrapper;
-import com.softgate.model.ArchiveWrapper;
 import com.softgate.util.CompressionUtil;
-import com.softgate.util.Dialogue;
 import com.softgate.util.HashUtils;
-import com.softgate.util.StringUtils;
 
+import io.softgate.AppData;
+import io.softgate.model.ArchiveEntryWrapper;
+import io.softgate.model.ArchiveWrapper;
+import io.softgate.util.Dialogue;
+import io.softgate.util.StringUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

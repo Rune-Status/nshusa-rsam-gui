@@ -1,9 +1,10 @@
-package com.softgate.util;
+package io.softgate.util;
 
 import java.text.DecimalFormat;
 
-import com.softgate.AppData;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
+
+import io.softgate.AppData;
 
 public final class StringUtils {
 	

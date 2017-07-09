@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.softgate.controller.StoreController">
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.softgate.controller.StoreController">
    <left>
       <VBox prefHeight="504.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>

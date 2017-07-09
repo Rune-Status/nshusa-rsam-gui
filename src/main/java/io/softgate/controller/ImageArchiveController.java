@@ -1,4 +1,4 @@
-package com.softgate.controller;
+package io.softgate.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +16,10 @@ import com.softgate.fs.binary.Archive;
 import com.softgate.fs.binary.Archive.ArchiveEntry;
 import com.softgate.fs.binary.ImageArchive;
 import com.softgate.fs.binary.Sprite;
-import com.softgate.util.Dialogue;
 import com.softgate.util.HashUtils;
-import com.softgate.util.StringUtils;
 
+import io.softgate.util.Dialogue;
+import io.softgate.util.StringUtils;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;

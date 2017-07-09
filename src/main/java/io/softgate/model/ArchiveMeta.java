@@ -1,4 +1,4 @@
-package com.softgate.model;
+package io.softgate.model;
 
 import java.util.Objects;
 

@@ -1,7 +1,6 @@
-package com.softgate.model;
+package io.softgate.model;
 
-import com.softgate.AppData;
-
+import io.softgate.AppData;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 

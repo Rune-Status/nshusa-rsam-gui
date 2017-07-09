@@ -1,4 +1,4 @@
-package com.softgate.util;
+package io.softgate.util;
 
 import java.util.zip.GZIPInputStream;
 
