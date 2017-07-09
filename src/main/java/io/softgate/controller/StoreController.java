@@ -305,10 +305,10 @@ public final class StoreController implements Initializable {
 			String name = AppData.storeNames.get(i);
 
 			if (name == null) {
-				name = Integer.toString(i);
+				name = String.format("index %d (unknown)", i);
 			}
 
-			indexes.add(name);
+			indexes.add(String.format("index %d (%s)", i, name));
 		}
 	}
 

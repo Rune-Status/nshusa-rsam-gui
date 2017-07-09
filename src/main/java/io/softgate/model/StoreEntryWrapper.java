@@ -17,9 +17,9 @@ public class StoreEntryWrapper {
 	
 	private ObservableValue<String> size;
 	
-	private ImageView image;	
+	private ImageView image;
 	
-	public StoreEntryWrapper(int id, String name, int size) {
+	public StoreEntryWrapper(int id, String name, int size) {		
 		this.id = new SimpleIntegerProperty(id).asObject();
 		this.name = new SimpleStringProperty(name.contains(".") ? name.substring(0, name.lastIndexOf(".")) : name);
 		this.extension = new SimpleStringProperty(name.contains(".") ? name.substring(name.lastIndexOf(".") + 1, name.length()) : "none");
