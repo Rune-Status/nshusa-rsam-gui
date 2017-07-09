@@ -16,6 +16,7 @@
                <contextMenu>
                   <ContextMenu>
                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Repack" />
                         <MenuItem mnemonicParsing="false" onAction="#renameStore" text="Rename" />
                         <MenuItem mnemonicParsing="false" onAction="#dumpIndex" text="Dump" />
                     </items>

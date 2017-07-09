@@ -500,7 +500,7 @@ public final class ArchiveController implements Initializable {
 					
 					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 					
-					for (int i = 0; i< selectedFiles.size(); i++) {
+					for (int i = 0; i < selectedFiles.size(); i++) {
 						try {
 							
 							File file = selectedFiles.get(i);

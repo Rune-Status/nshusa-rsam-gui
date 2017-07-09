@@ -122,10 +122,6 @@ public final class StoreController implements Initializable {
 					}
 				}
 
-				MenuItem addMI = new MenuItem("Add");
-				addMI.setOnAction(e -> addEntry());				
-				context.getItems().add(addMI);
-
 				MenuItem renameMI = new MenuItem("Rename");
 				renameMI.setOnAction(e -> renameArchive());				
 				context.getItems().add(renameMI);
