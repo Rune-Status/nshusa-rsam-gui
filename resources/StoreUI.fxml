@@ -115,7 +115,7 @@
                <children>
                   <HBox alignment="CENTER" layoutX="327.0" layoutY="3.0" VBox.vgrow="NEVER">
                      <children>
-                        <Label fx:id="appTitle" text="RS2 Asset Manager (1.0.4)" />
+                        <Label fx:id="appTitle" text="RS2 Asset Manager [build 1.0.5]" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_RIGHT" layoutX="712.0" layoutY="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="3.0">
