@@ -102,8 +102,6 @@ public final class StoreController implements Initializable {
 				return;
 			}
 			
-			System.out.println(selectedIndex + " " + selectedRow);
-			
 			if (selectedIndex == 0) {
 
 				ContextMenu context = new ContextMenu();

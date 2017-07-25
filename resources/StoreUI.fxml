@@ -57,40 +57,7 @@
             </TableView>
             <VBox>
                <children>
-                  <HBox alignment="CENTER_LEFT">
-                     <children>
-                        <Button fx:id="addEntryBtn" mnemonicParsing="false" onAction="#addEntry" text="Add">
-                           <tooltip>
-                              <Tooltip text="Use this button to add an entry to a store" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="deleteEntryBtn" mnemonicParsing="false" text="Remove">
-                           <tooltip>
-                              <Tooltip text="Use this button to remove an entry from a store" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename">
-                           <tooltip>
-                              <Tooltip text="Use this button to rename an entry" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="replaceBtn" mnemonicParsing="false" onAction="#replaceEntry" text="Replace">
-                           <tooltip>
-                              <Tooltip text="Use this button to replace an entry" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpEntry" text="Dump">
-                           <tooltip>
-                              <Tooltip text="Use this button to dump entries" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearIndex" text="Clear">
-                           <tooltip>
-                              <Tooltip text="Use this button to remove all entries" />
-                           </tooltip>
-                        </Button>
-                     </children>
-                  </HBox>
+                  <HBox alignment="CENTER_LEFT" />
                   <HBox alignment="CENTER" VBox.vgrow="NEVER">
                      <children>
                         <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
