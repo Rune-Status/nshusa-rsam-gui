@@ -33,6 +33,8 @@ public final class AppData {
 
 	public static final Image fileIcon = new Image(App.class.getResourceAsStream("/images/file_icon.png"));
 	
+	public static final Image gzipIcon = new Image(App.class.getResourceAsStream("/images/gzip_icon.png"));
+	
 	private AppData() {
 		
 	}
@@ -61,6 +63,9 @@ public final class AppData {
 		
 			case "png":
 				return pngIcon;
+				
+			case "gz":
+				return gzipIcon;
 
 		}
 		
