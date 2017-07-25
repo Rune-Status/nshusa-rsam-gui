@@ -355,7 +355,7 @@ public final class StoreController implements Initializable {
 
 						storeWrappers.add(new StoreEntryWrapper(i, name, fileData.length));
 					} else {
-						storeWrappers.add(new StoreEntryWrapper(i, gzipped ? i + ".gz" : i + ".dat", fileData.length));
+						storeWrappers.add(new StoreEntryWrapper(i, gzipped ? i + ".gz" : fileData.length == 0 ? "empty" : Integer.toString(i) , fileData.length));
 					}
 
 					double progress = ((double) (i + 1) / entries) * 100;
