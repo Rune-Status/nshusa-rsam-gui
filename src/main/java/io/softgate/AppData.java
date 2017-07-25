@@ -35,6 +35,14 @@ public final class AppData {
 	
 	public static final Image gzipIcon = new Image(App.class.getResourceAsStream("/images/gzip_icon.png"));
 	
+	public static final Image addIcon = new Image(App.class.getResourceAsStream("/images/action_add.png"));
+	
+	public static final Image deleteIcon = new Image(App.class.getResourceAsStream("/images/action_delete.png"));
+	
+	public static final Image downloadIcon = new Image(App.class.getResourceAsStream("/images/download.png"));
+	
+	public static final Image clearIcon = new Image(App.class.getResourceAsStream("/images/clear_icon.png"));
+	
 	private AppData() {
 		
 	}

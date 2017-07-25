@@ -146,18 +146,22 @@ public final class StoreController implements Initializable {
 				ContextMenu context = new ContextMenu();
 
 				MenuItem addMI = new MenuItem("Add");
+				addMI.setGraphic(new ImageView(AppData.addIcon));
 				addMI.setOnAction(e -> addEntry());
 
 				MenuItem removeMI = new MenuItem("Remove");
+				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
 				removeMI.setOnAction(e -> removeEntry());
 
 				MenuItem replaceMI = new MenuItem("Replace");
 				replaceMI.setOnAction(e -> replaceEntry());
 
 				MenuItem dumpMI = new MenuItem("Dump");
+				dumpMI.setGraphic(new ImageView(AppData.downloadIcon));
 				dumpMI.setOnAction(e -> dumpEntry());
 
 				MenuItem clearMI = new MenuItem("Clear");
+				clearMI.setGraphic(new ImageView(AppData.clearIcon));
 				clearMI.setOnAction(e -> clearIndex());
 
 				context.getItems().addAll(addMI, removeMI, replaceMI, dumpMI, clearMI);
