@@ -39,7 +39,7 @@ public final class AppData {
 	
 	public static final Image deleteIcon = new Image(App.class.getResourceAsStream("/images/action_delete.png"));
 	
-	public static final Image downloadIcon = new Image(App.class.getResourceAsStream("/images/download.png"));
+	public static final Image exportFileIcon16 = new Image(App.class.getResourceAsStream("/images/export_file_icon_16.png"));
 	
 	public static final Image clearIcon24 = new Image(App.class.getResourceAsStream("/images/clear_icon_24.png"));
 
