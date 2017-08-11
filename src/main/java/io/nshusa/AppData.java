@@ -41,7 +41,9 @@ public final class AppData {
 	
 	public static final Image downloadIcon = new Image(App.class.getResourceAsStream("/images/download.png"));
 	
-	public static final Image clearIcon = new Image(App.class.getResourceAsStream("/images/clear_icon.png"));
+	public static final Image clearIcon24 = new Image(App.class.getResourceAsStream("/images/clear_icon_24.png"));
+
+	public static final Image clearIcon16 = new Image(App.class.getResourceAsStream("/images/clear_icon_16.png"));
 	
 	private AppData() {
 		

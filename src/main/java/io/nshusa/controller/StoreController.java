@@ -161,7 +161,7 @@ public final class StoreController implements Initializable {
 				dumpMI.setOnAction(e -> dumpEntry());
 
 				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setGraphic(new ImageView(AppData.clearIcon));
+				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
 				clearMI.setOnAction(e -> clearIndex());
 
 				context.getItems().addAll(addMI, removeMI, replaceMI, dumpMI, clearMI);
