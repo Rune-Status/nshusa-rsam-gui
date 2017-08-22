@@ -1,6 +1,7 @@
 group = 'rsam-gui'
 version = '1.00'
 apply plugin: 'java'
+apply plugin: 'idea'
 
 repositories {
     mavenCentral()
