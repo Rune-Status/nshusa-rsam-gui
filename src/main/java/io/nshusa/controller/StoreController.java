@@ -257,7 +257,7 @@ public final class StoreController implements Initializable {
 				setGraphic(null);
 				setText(null);
 			} else {
-				ImageView imageView = new ImageView(AppData.indexIcon);
+				ImageView imageView = new ImageView(AppData.fileStoreIcon);
 				setGraphic(imageView);
 				setText(item);
 			}

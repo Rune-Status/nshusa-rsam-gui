@@ -27,7 +27,7 @@ public class App extends Application {
 
 	@Override
 	public void init() {
-		
+
 		new Thread(new Runnable() {
 
 			@Override
@@ -36,7 +36,7 @@ public class App extends Application {
 				if (!Files.exists(AppData.resourcePath)) {
 					AppData.resourcePath.toFile().mkdirs();
 				}
-				
+
 				if (!Files.exists(AppData.storeResourcePath)) {
 					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
 						writer.println("0:archive");
@@ -48,17 +48,17 @@ public class App extends Application {
 						e.printStackTrace();
 					}
 				}
-				
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "stores.txt")))) {			
-					
+
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "stores.txt")))) {
+
 					String line;
-					
+
 					while((line = reader.readLine()) != null) {
-						
+
 						String[] split = line.split(":");
-						
+
 						AppData.storeNames.put(Integer.parseInt(split[0]), split[1]);
-						
+
 					}
 
 				} catch (FileNotFoundException e) {
@@ -67,18 +67,18 @@ public class App extends Application {
 					e.printStackTrace();
 				}
 			}
-			
+
 		}).start();
-		
+
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				
+
 				if (!Files.exists(AppData.resourcePath)) {
 					AppData.resourcePath.toFile().mkdirs();
 				}
-				
+
 				if (!Files.exists(AppData.archiveResourcePath)) {
 					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
 						writer.println("0:empty:false");
@@ -94,17 +94,17 @@ public class App extends Application {
 						e.printStackTrace();
 					}
 				}
-				
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "archives.txt")))) {			
-					
+
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "archives.txt")))) {
+
 					String line;
-					
+
 					while((line = reader.readLine()) != null) {
-						
+
 						String[] split = line.split(":");
-						
+
 						AppData.archiveMetas.put(Integer.parseInt(split[0]), new ArchiveMeta(Integer.parseInt(split[0]), split[1], Boolean.parseBoolean(split[2])));
-						
+
 					}
 
 				} catch (FileNotFoundException e) {
@@ -112,21 +112,21 @@ public class App extends Application {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
-			
-			
+
+
 		}).start();
-		
+
 		new Thread(new Runnable() {
 
 			@Override
 			public void run() {
-				
+
 				if (!Files.exists(AppData.resourcePath)) {
 					AppData.resourcePath.toFile().mkdirs();
 				}
-				
+
 				if (!Files.exists(AppData.hashResourcePath)) {
 					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.hashResourcePath.toFile()))) {
 						writer.println("blackmark.dat:-1857300557");
@@ -324,17 +324,17 @@ public class App extends Application {
 						e.printStackTrace();
 					}
 				}
-				
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "hashes.txt")))) {			
-					
+
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "hashes.txt")))) {
+
 					String line;
-					
+
 					while((line = reader.readLine()) != null) {
-						
+
 						String[] split = line.split(":");
-						
+
 						AppData.commonHashNames.put(Integer.parseInt(split[1]), split[0]);
-						
+
 					}
 
 				} catch (FileNotFoundException e) {
@@ -342,10 +342,10 @@ public class App extends Application {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
-			
-			
+
+
 		}).start();
 
 	}

@@ -10,7 +10,7 @@ import io.nshusa.model.ArchiveMeta;
 import javafx.scene.image.Image;
 
 public final class AppData {
-	
+
 	public static final Path resourcePath = Paths.get(System.getProperty("user.home") + File.separator + ".rsam");
 	
 	public static final Path storeResourcePath = resourcePath.resolve("stores.txt");
@@ -18,18 +18,18 @@ public final class AppData {
 	public static final Path archiveResourcePath = resourcePath.resolve("archives.txt");
 	
 	public static final Path hashResourcePath = resourcePath.resolve("hashes.txt");
-	
-	public static final Image indexIcon = new Image(App.class.getResourceAsStream("/images/index_icon.png"));
 
 	public static final Image datIcon = new Image(App.class.getResourceAsStream("/images/dat_icon.png"));
 
 	public static final Image idxIcon = new Image(App.class.getResourceAsStream("/images/idx_icon.png"));
 
-	public static final Image textIcon = new Image(App.class.getResourceAsStream("/images/text_icon.png"));
+	public static final Image txtIcon = new Image(App.class.getResourceAsStream("/images/txt_icon.png"));
+
+	public static final Image fileStoreIcon = new Image(App.class.getResourceAsStream("/images/file_store_icon.png"));
 
 	public static final Image midiIcon = new Image(App.class.getResourceAsStream("/images/midi_icon.png"));
 
-	public static final Image pngIcon = new Image(App.class.getResourceAsStream("/images/dat_icon.png"));
+	public static final Image pngIcon = new Image(App.class.getResourceAsStream("/images/png_icon.png"));
 
 	public static final Image fileIcon = new Image(App.class.getResourceAsStream("/images/file_icon.png"));
 	
@@ -66,7 +66,7 @@ public final class AppData {
 				return idxIcon;
 				
 			case "txt":
-				return textIcon;
+				return txtIcon;
 				
 			case "midi":
 				return midiIcon;
