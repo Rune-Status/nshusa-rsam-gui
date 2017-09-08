@@ -92,7 +92,7 @@
 }
 
 #clearBtn {
-	-fx-graphic: url('images/clear_icon.png');
+	-fx-graphic: url('images/clear_icon_24.png');
 }
 
 #clearBtn:hover {

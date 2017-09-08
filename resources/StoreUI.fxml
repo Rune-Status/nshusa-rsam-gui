@@ -8,14 +8,15 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.softgate.controller.StoreController">
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.StoreController">
    <left>
-      <VBox prefHeight="504.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
             <ListView fx:id="listView" VBox.vgrow="ALWAYS">
                <contextMenu>
                   <ContextMenu>
                     <items>
+                        <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Repack" />
                         <MenuItem mnemonicParsing="false" onAction="#renameStore" text="Rename" />
                         <MenuItem mnemonicParsing="false" onAction="#dumpIndex" text="Dump" />
                     </items>
@@ -56,40 +57,7 @@
             </TableView>
             <VBox>
                <children>
-                  <HBox alignment="CENTER_LEFT">
-                     <children>
-                        <Button fx:id="addEntryBtn" mnemonicParsing="false" onAction="#addEntry" text="Add">
-                           <tooltip>
-                              <Tooltip text="Use this button to add an entry to a store" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="deleteEntryBtn" mnemonicParsing="false" text="Remove">
-                           <tooltip>
-                              <Tooltip text="Use this button to remove an entry from a store" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename">
-                           <tooltip>
-                              <Tooltip text="Use this button to rename an entry" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="replaceBtn" mnemonicParsing="false" onAction="#replaceEntry" text="Replace">
-                           <tooltip>
-                              <Tooltip text="Use this button to replace an entry" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpEntry" text="Dump">
-                           <tooltip>
-                              <Tooltip text="Use this button to dump entries" />
-                           </tooltip>
-                        </Button>
-                        <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearIndex" text="Clear">
-                           <tooltip>
-                              <Tooltip text="Use this button to remove all entries" />
-                           </tooltip>
-                        </Button>
-                     </children>
-                  </HBox>
+                  <HBox alignment="CENTER_LEFT" />
                   <HBox alignment="CENTER" VBox.vgrow="NEVER">
                      <children>
                         <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
@@ -114,7 +82,7 @@
                <children>
                   <HBox alignment="CENTER" layoutX="327.0" layoutY="3.0" VBox.vgrow="NEVER">
                      <children>
-                        <Label fx:id="appTitle" text="RS2 Asset Manager (1.0.4)" />
+                        <Label fx:id="appTitle" text="RS2 Asset Manager [build 1.0.6]" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_RIGHT" layoutX="712.0" layoutY="3.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="3.0">
