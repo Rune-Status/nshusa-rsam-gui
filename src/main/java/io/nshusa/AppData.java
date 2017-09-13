@@ -15,7 +15,7 @@ public final class AppData {
 	
 	public static final Path storeResourcePath = resourcePath.resolve("stores.txt");
 	
-	public static final Path archiveResourcePath = resourcePath.resolve("archives.txt");
+	public static final Path archiveResourcePath = resourcePath.resolve("archives.json");
 	
 	public static final Path hashResourcePath = resourcePath.resolve("hashes.txt");
 
