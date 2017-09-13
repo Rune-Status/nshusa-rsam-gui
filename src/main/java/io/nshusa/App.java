@@ -81,15 +81,15 @@ public class App extends Application {
 
 				if (!Files.exists(AppData.archiveResourcePath)) {
 					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-						writer.println("0:empty:false");
-						writer.println("1:title:true");
-						writer.println("2:config:false");
-						writer.println("3:interface:false");
-						writer.println("4:media:true");
-						writer.println("5:versionlist:false");
-						writer.println("6:texture:true");
-						writer.println("7:wordenc:false");
-						writer.println("8:sound:false");
+						writer.println("0:empty.jag:false");
+						writer.println("1:title.jag:true");
+						writer.println("2:config.jag:false");
+						writer.println("3:interface.jag:false");
+						writer.println("4:media.jag:true");
+						writer.println("5:versionlist.jag:false");
+						writer.println("6:texture.jag:true");
+						writer.println("7:wordenc.jag:false");
+						writer.println("8:sound.jag:false");
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
