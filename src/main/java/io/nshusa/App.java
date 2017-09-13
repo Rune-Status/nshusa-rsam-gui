@@ -1,14 +1,13 @@
 package io.nshusa;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import io.nshusa.controller.StoreController;
 import io.nshusa.model.ArchiveMeta;
 import javafx.application.Application;
@@ -80,33 +79,34 @@ public class App extends Application {
 				}
 
 				if (!Files.exists(AppData.archiveResourcePath)) {
-					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-						writer.println("0:empty.jag:false");
-						writer.println("1:title.jag:true");
-						writer.println("2:config.jag:false");
-						writer.println("3:interface.jag:false");
-						writer.println("4:media.jag:true");
-						writer.println("5:versionlist.jag:false");
-						writer.println("6:texture.jag:true");
-						writer.println("7:wordenc.jag:false");
-						writer.println("8:sound.jag:false");
+
+					List<ArchiveMeta> meta = Arrays.asList(
+							new ArchiveMeta(0, "empty.jag", false),
+							new ArchiveMeta(1, "title.jag", true),
+							new ArchiveMeta(2, "config.jag", false),
+							new ArchiveMeta(3, "interface.jag", false),
+							new ArchiveMeta(4, "media.jag", true),
+							new ArchiveMeta(5, "versionlist.jag", false),
+							new ArchiveMeta(6, "texture.jag", true),
+							new ArchiveMeta(7, "wordenc.jag", false),
+							new ArchiveMeta(8, "sound.jag", false));
+
+					try(BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
+						Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+						writer.write(gson.toJson(meta));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+
 				}
 
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "archives.txt")))) {
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "archives.json")))) {
+					Gson gson = new Gson();
 
-					String line;
+					List<ArchiveMeta> meta = Arrays.asList(gson.fromJson(reader, ArchiveMeta[].class));
 
-					while((line = reader.readLine()) != null) {
-
-						String[] split = line.split(":");
-
-						AppData.archiveMetas.put(Integer.parseInt(split[0]), new ArchiveMeta(Integer.parseInt(split[0]), split[1], Boolean.parseBoolean(split[2])));
-
-					}
-
+					meta.stream().forEach(it -> AppData.archiveMetas.put(it.getId(), it));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -114,7 +114,6 @@ public class App extends Application {
 				}
 
 			}
-
 
 		}).start();
 
