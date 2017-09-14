@@ -28,7 +28,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
                         <MenuItem mnemonicParsing="false" onAction="#removeArchive" text="Remove" />
-                        <MenuItem mnemonicParsing="false" onAction="#dumpArchive" text="Dump" />
+                        <MenuItem mnemonicParsing="false" onAction="#dumpArchive" text="Export" />
                     </items>
                   </ContextMenu>
                </contextMenu>
@@ -69,7 +69,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#identifyHash" text="Identify" />
                         <MenuItem mnemonicParsing="false" onAction="#removeEntry" text="Remove" />
                         <MenuItem mnemonicParsing="false" onAction="#replaceEntry" text="Replace" />
-                        <MenuItem mnemonicParsing="false" onAction="#dumpEntry" text="Dump" />
+                        <MenuItem mnemonicParsing="false" onAction="#dumpEntry" text="Export" />
                         <MenuItem mnemonicParsing="false" onAction="#clearArchive" text="Clear" />
                     </items>
                   </ContextMenu>

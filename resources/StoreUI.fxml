@@ -30,7 +30,7 @@
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#addEntry" text="Repack" />
                         <MenuItem mnemonicParsing="false" onAction="#renameStore" text="Rename" />
-                        <MenuItem mnemonicParsing="false" onAction="#dumpIndex" text="Dump" />
+                        <MenuItem mnemonicParsing="false" onAction="#dumpIndex" text="Export" />
                     </items>
                   </ContextMenu>
                </contextMenu>
@@ -141,7 +141,7 @@
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Dump">
+                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Export">
                            <tooltip>
                               <Tooltip text="Use this button to dump all entries from a store" />
                            </tooltip>
