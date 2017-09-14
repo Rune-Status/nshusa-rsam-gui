@@ -45,6 +45,8 @@ public final class AppData {
 
 	public static final Image renameIcon16 = new Image(App.class.getResourceAsStream("/icons/rename_16.png"));
 
+	public static final Image pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
+
 	private AppData() {
 		
 	}

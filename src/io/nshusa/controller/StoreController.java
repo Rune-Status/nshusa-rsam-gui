@@ -100,7 +100,8 @@ public final class StoreController implements Initializable {
 
 			ContextMenu context = new ContextMenu();
 
-			MenuItem repackMI = new MenuItem("Repack");
+			MenuItem repackMI = new MenuItem("Import");
+			repackMI.setGraphic(new ImageView(AppData.pack16Icon));
 			repackMI.setOnAction(e -> addEntry());
 
 			MenuItem renameMI = new MenuItem("Rename");
