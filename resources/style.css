@@ -80,7 +80,7 @@
 }
 
 #saveBtn {
-	-fx-graphic: url('icons/save_icon.png');
+	-fx-graphic: url('icons/save_24.png');
 }
 
 #saveBtn:hover {

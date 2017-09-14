@@ -36,13 +36,13 @@ public final class AppData {
 	public static final Image addIcon = new Image(App.class.getResourceAsStream("/icons/action_add.png"));
 	
 	public static final Image deleteIcon = new Image(App.class.getResourceAsStream("/icons/action_delete.png"));
-	
-	public static final Image exportFileIcon16 = new Image(App.class.getResourceAsStream("/icons/export_file_icon_16.png"));
-	
+
 	public static final Image clearIcon24 = new Image(App.class.getResourceAsStream("/icons/clear_icon_24.png"));
 
 	public static final Image clearIcon16 = new Image(App.class.getResourceAsStream("/icons/clear_icon_16.png"));
-	
+
+	public static final Image saveIcon16 = new Image(App.class.getResourceAsStream("/icons/save_16.png"));
+
 	private AppData() {
 		
 	}

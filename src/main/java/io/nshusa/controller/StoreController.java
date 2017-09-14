@@ -89,6 +89,32 @@ public final class StoreController implements Initializable {
 		extCol.setCellValueFactory(cellData -> cellData.getValue().getExtensionProperty());
 		sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty());
 		iconCol.setCellValueFactory(new PropertyValueFactory<StoreEntryWrapper, ImageView>("image"));
+
+		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
+
+			final int selectedRow = newSelection.intValue();
+
+			if (selectedRow == -1) {
+				return;
+			}
+
+			ContextMenu context = new ContextMenu();
+
+			MenuItem repackMI = new MenuItem("Repack");
+			repackMI.setOnAction(e -> addEntry());
+
+			MenuItem renameMI = new MenuItem("Rename");
+			renameMI.setOnAction(e -> renameStore());
+
+			MenuItem exportMI = new MenuItem("Export");
+			exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+			exportMI.setOnAction(e -> dumpEntry());
+
+			context.getItems().addAll(repackMI, renameMI, exportMI);
+
+			listView.setContextMenu(context);
+
+		});
 		
 		tableView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 			
@@ -123,6 +149,7 @@ public final class StoreController implements Initializable {
 				context.getItems().add(renameMI);
 
 				MenuItem removeMI = new MenuItem("Remove");
+				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
 				removeMI.setOnAction(e -> removeEntry());				
 				context.getItems().add(removeMI);
 
@@ -130,12 +157,14 @@ public final class StoreController implements Initializable {
 				replaceMI.setOnAction(e -> replaceEntry());				
 				context.getItems().add(replaceMI);
 
-				MenuItem dumpMI = new MenuItem("Dump");
-				dumpMI.setOnAction(e -> dumpEntry());				
-				context.getItems().add(dumpMI);
+				MenuItem exportMI = new MenuItem("Export");
+				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+				exportMI.setOnAction(e -> dumpEntry());
+				context.getItems().add(exportMI);
 
 				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setOnAction(e -> clearIndex());				
+				clearMI.setOnAction(e -> clearIndex());
+				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
 				context.getItems().add(clearMI);
 
 				tableView.setContextMenu(context);
@@ -154,15 +183,15 @@ public final class StoreController implements Initializable {
 				MenuItem replaceMI = new MenuItem("Replace");
 				replaceMI.setOnAction(e -> replaceEntry());
 
-				MenuItem dumpMI = new MenuItem("Export");
-				dumpMI.setGraphic(new ImageView(AppData.exportFileIcon16));
-				dumpMI.setOnAction(e -> dumpEntry());
+				MenuItem exportMI = new MenuItem("Export");
+				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+				exportMI.setOnAction(e -> dumpEntry());
 
 				MenuItem clearMI = new MenuItem("Clear");
 				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
 				clearMI.setOnAction(e -> clearIndex());
 
-				context.getItems().addAll(addMI, removeMI, replaceMI, dumpMI, clearMI);
+				context.getItems().addAll(addMI, removeMI, replaceMI, exportMI, clearMI);
 
 				tableView.setContextMenu(context);
 			}
