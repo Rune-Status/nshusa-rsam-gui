@@ -209,7 +209,7 @@ public final class ArchiveController implements Initializable {
 				setGraphic(null);
 				setText(null);
 			} else {
-				ImageView imageView = new ImageView(AppData.idxIcon);
+				ImageView imageView = new ImageView(AppData.fileStoreIcon);
 				setGraphic(imageView);
 				setText(item.getName());
 			}
