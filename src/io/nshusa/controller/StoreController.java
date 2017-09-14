@@ -104,6 +104,7 @@ public final class StoreController implements Initializable {
 			repackMI.setOnAction(e -> addEntry());
 
 			MenuItem renameMI = new MenuItem("Rename");
+			renameMI.setGraphic(new ImageView(AppData.renameIcon16));
 			renameMI.setOnAction(e -> renameStore());
 
 			MenuItem exportMI = new MenuItem("Export");

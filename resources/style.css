@@ -36,7 +36,7 @@
 }
 
 #renameBtn {
-	-fx-graphic: url('icons/rename_icon.png');
+	-fx-graphic: url('icons/rename_24.png');
 }
 
 #renameBtn:hover {
