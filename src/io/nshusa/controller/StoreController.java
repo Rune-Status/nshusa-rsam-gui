@@ -11,15 +11,15 @@ import java.util.ResourceBundle;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.softgate.fs.FileStore;
-import com.softgate.fs.IndexedFileSystem;
-import com.softgate.fs.binary.Archive;
 
 import io.nshusa.App;
 import io.nshusa.AppData;
 import io.nshusa.meta.StoreMeta;
 import io.nshusa.model.ArchiveMeta;
 import io.nshusa.model.StoreEntryWrapper;
+import io.nshusa.rsam.FileStore;
+import io.nshusa.rsam.IndexedFileSystem;
+import io.nshusa.rsam.binary.Archive;
 import io.nshusa.util.Dialogue;
 import io.nshusa.util.GZipUtils;
 import javafx.animation.PauseTransition;

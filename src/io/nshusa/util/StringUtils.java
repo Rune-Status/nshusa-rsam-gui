@@ -2,9 +2,8 @@ package io.nshusa.util;
 
 import java.text.DecimalFormat;
 
-import com.softgate.fs.binary.Archive.ArchiveEntry;
-
 import io.nshusa.AppData;
+import io.nshusa.rsam.binary.Archive;
 
 public final class StringUtils {
 	
@@ -19,7 +18,7 @@ public final class StringUtils {
 	    return new DecimalFormat("#,##0.#").format(size/Math.pow(1024, digitGroups)) + " " + units[digitGroups];
 	}
 	
-	public static String getCommonName(ArchiveEntry entry) {
+	public static String getCommonName(Archive.ArchiveEntry entry) {
 		return AppData.commonHashNames.containsKey(entry.getHash()) ? AppData.commonHashNames.get(entry.getHash())
 				: Integer.toString(entry.getHash());
 	}

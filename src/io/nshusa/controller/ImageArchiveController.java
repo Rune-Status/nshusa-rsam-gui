@@ -1,23 +1,24 @@
 package io.nshusa.controller;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
 
-import com.softgate.fs.IndexedFileSystem;
-import com.softgate.fs.binary.Archive;
-import com.softgate.fs.binary.Archive.ArchiveEntry;
-import com.softgate.fs.binary.ImageArchive;
-import com.softgate.fs.binary.Sprite;
-import com.softgate.util.HashUtils;
-
+import io.nshusa.rsam.IndexedFileSystem;
+import io.nshusa.rsam.binary.Archive;
+import io.nshusa.rsam.binary.sprite.Sprite;
+import io.nshusa.rsam.util.HashUtils;
 import io.nshusa.util.Dialogue;
 import io.nshusa.util.StringUtils;
 import javafx.animation.PauseTransition;
@@ -37,6 +38,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import io.nshusa.rsam.binary.Archive.ArchiveEntry;
 
 public class ImageArchiveController implements Initializable {
 
@@ -76,10 +78,10 @@ public class ImageArchiveController implements Initializable {
 
 				ContextMenu contextMenu = new ContextMenu();
 
-				MenuItem dumpMI = new MenuItem("Dump");
-				dumpMI.setOnAction(e -> dump());
+				MenuItem exportMI = new MenuItem("Export");
+				exportMI.setOnAction(e -> dump());
 
-				contextMenu.getItems().add(dumpMI);
+				contextMenu.getItems().add(exportMI);
 
 				treeView.setContextMenu(contextMenu);
 
@@ -89,10 +91,10 @@ public class ImageArchiveController implements Initializable {
 
 				ContextMenu contextMenu = new ContextMenu();
 
-				MenuItem item1 = new MenuItem("Dump");
-				item1.setOnAction(e -> dump());
+				MenuItem exportMI = new MenuItem("Export");
+				exportMI.setOnAction(e -> dump());
 
-				contextMenu.getItems().add(item1);
+				contextMenu.getItems().add(exportMI);
 
 				treeView.setContextMenu(contextMenu);
 
@@ -116,9 +118,7 @@ public class ImageArchiveController implements Initializable {
 
 				TreeItem<String> root = new TreeItem<>(name);
 
-				Platform.runLater(() -> {
-					treeView.getRoot().getChildren().add(root);
-				});
+				Platform.runLater(() ->	treeView.getRoot().getChildren().add(root));
 
 				for (int i = 0; i < archive.getEntries().size(); i++) {
 					ArchiveEntry entry = archive.getEntries().get(i);
@@ -131,21 +131,28 @@ public class ImageArchiveController implements Initializable {
 
 					TreeItem<String> parent = new TreeItem<String>(StringUtils.getCommonName(entry));
 
-					List<Sprite> sprites = ImageArchive.decode(ByteBuffer.wrap(archive.readFile(entry.getHash())),
-							ByteBuffer.wrap(archive.readFile("index.dat")), true);
+					final List<BufferedImage> bImages = new ArrayList<>();
 
-					for (int frame = 0; frame < sprites.size(); frame++) {
-						Sprite sprite = sprites.get(frame);
+					if (entry.getHash() == HashUtils.nameToHash("title.dat")) {
+						decodeTitle(archive, entry, bImages);
+					} else if (entry.getHash() == HashUtils.nameToHash("runes.dat")) {
+						decodeRunes(archive, entry, bImages);
+					} else {
+						decodeNormal(archive, entry, bImages);
+					}
 
-						Image image = SwingFXUtils.toFXImage(sprite.toBufferedImage(), null);
+					for (int frame = 0; frame < bImages.size(); frame++) {
+						BufferedImage bImage = bImages.get(frame);
+
+						Image image = SwingFXUtils.toFXImage(bImage, null);
 
 						parent.getChildren().add(new TreeItem<String>(Integer.toString(frame), new ImageView(image)));
 					}
 
-					double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
+					double progress = ((double) (i + 2) / archive.getEntries().size()) * 100;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
-					updateProgress((i + 1), archive.getEntries().size());
+					updateProgress((i + 1), archive.getEntries().size() - 1);
 
 					root.getChildren().add(parent);
 
@@ -154,6 +161,39 @@ public class ImageArchiveController implements Initializable {
 			}
 
 		});
+	}
+
+	private void decodeNormal(Archive archive, ArchiveEntry entry, List<BufferedImage> bImages) {
+		for(int i = 0;; i++) {
+			try {
+				bImages.add(Sprite.decode(archive, entry.getHash(), i).toBufferedImage());
+			} catch (Exception ex) {
+				break;
+			}
+		}
+	}
+
+	private void decodeRunes(Archive archive, ArchiveEntry entry, List<BufferedImage> bImages) {
+		for (int i = 0; i < 16; i++) {
+			try {
+				bImages.add(Sprite.decode(archive, entry.getHash(), i).toBufferedImage());
+			} catch (IOException e) {
+				break;
+			}
+		}
+
+	}
+
+	private void decodeTitle(Archive archive, ArchiveEntry entry, List<BufferedImage> bImages) {
+			try {
+				byte[] data = archive.readFile("title.dat");
+
+				try(InputStream is = new ByteArrayInputStream(data)) {
+					bImages.add(ImageIO.read(is));
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 	}
 
 	@FXML
@@ -183,13 +223,18 @@ public class ImageArchiveController implements Initializable {
 
 						TreeItem<String> parent = new TreeItem<String>(StringUtils.getCommonName(entry));
 
-						List<Sprite> sprites = ImageArchive.decode(ByteBuffer.wrap(archive.readFile(entry.getHash())),
-								ByteBuffer.wrap(archive.readFile("index.dat")), true);
+						List<BufferedImage> bImages = new ArrayList<>();
 
-						for (int frame = 0; frame < sprites.size(); frame++) {
-							Sprite sprite = sprites.get(frame);
+						if (entry.getHash() == HashUtils.nameToHash("title.dat")) {
+							decodeTitle(archive, entry, bImages);
+						} else {
+							decodeNormal(archive, entry, bImages);
+						}
 
-							Image image = SwingFXUtils.toFXImage(sprite.toBufferedImage(), null);
+						for (int frame = 0; frame < bImages.size(); frame++) {
+							BufferedImage bImage = bImages.get(frame);
+
+							Image image = SwingFXUtils.toFXImage(bImage, null);
 
 							parent.getChildren().add(new TreeItem<String>(i + "_" + frame, new ImageView(image)));
 						}
@@ -197,11 +242,9 @@ public class ImageArchiveController implements Initializable {
 						double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
 
 						updateMessage(String.format("%.2f%s", progress, "%"));
-						updateProgress((i + 1), archive.getEntries().size());
+						updateProgress((i + 1), archive.getEntries().size() - 1);
 
-						Platform.runLater(() -> {
-							treeView.getRoot().getChildren().add(parent);
-						});
+						Platform.runLater(() -> treeView.getRoot().getChildren().add(parent));
 
 					}
 

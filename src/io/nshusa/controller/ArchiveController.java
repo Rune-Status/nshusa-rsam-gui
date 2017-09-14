@@ -12,16 +12,14 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Map.Entry;
 
-import com.softgate.fs.FileStore;
-import com.softgate.fs.IndexedFileSystem;
-import com.softgate.fs.binary.Archive;
-import com.softgate.fs.binary.Archive.ArchiveEntry;
-import com.softgate.util.CompressionUtil;
-import com.softgate.util.HashUtils;
-
 import io.nshusa.AppData;
 import io.nshusa.model.ArchiveEntryWrapper;
 import io.nshusa.model.ArchiveWrapper;
+import io.nshusa.rsam.FileStore;
+import io.nshusa.rsam.IndexedFileSystem;
+import io.nshusa.rsam.binary.Archive;
+import io.nshusa.rsam.util.CompressionUtil;
+import io.nshusa.rsam.util.HashUtils;
 import io.nshusa.util.Dialogue;
 import io.nshusa.util.StringUtils;
 import javafx.animation.PauseTransition;
@@ -48,6 +46,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import io.nshusa.rsam.binary.Archive.ArchiveEntry;
 
 public final class ArchiveController implements Initializable {
 
@@ -420,7 +419,7 @@ public final class ArchiveController implements Initializable {
 
 					AppData.commonHashNames.put(nHash, nName);
 
-					ArchiveEntry nEntry = new ArchiveEntry(nHash, entry.getUncompressedSize(), entry.getCompresseedSize(),
+					Archive.ArchiveEntry nEntry = new Archive.ArchiveEntry(nHash, entry.getUncompressedSize(), entry.getCompresseedSize(),
 							entry.getData());
 
 					archive.getEntries().set(slot, nEntry);

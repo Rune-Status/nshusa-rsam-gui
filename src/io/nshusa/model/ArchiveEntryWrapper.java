@@ -1,8 +1,7 @@
 package io.nshusa.model;
 
-import com.softgate.fs.binary.Archive.ArchiveEntry;
-
 import io.nshusa.AppData;
+import io.nshusa.rsam.binary.Archive;
 import io.nshusa.util.StringUtils;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,7 +20,7 @@ public final class ArchiveEntryWrapper {
 	
 	private ImageView image;	
 	
-	public ArchiveEntryWrapper(ArchiveEntry entry) {
+	public ArchiveEntryWrapper(Archive.ArchiveEntry entry) {
 		this.hash = new SimpleIntegerProperty(entry.getHash()).asObject();
 		this.name = new SimpleStringProperty(StringUtils.getCommonName(entry).contains(".") ? StringUtils.getCommonName(entry).substring(0, StringUtils.getCommonName(entry).lastIndexOf(".")) : StringUtils.getCommonName(entry));
 		this.extension = new SimpleStringProperty(StringUtils.getCommonName(entry).contains(".") ? StringUtils.getCommonName(entry).substring(StringUtils.getCommonName(entry).lastIndexOf(".") + 1, StringUtils.getCommonName(entry).length()) : "none");
