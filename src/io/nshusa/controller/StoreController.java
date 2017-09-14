@@ -727,6 +727,19 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		for (File file : files) {
+			if (!file.getName().endsWith(".gz")) {
+				Dialogue.showWarning("You can only select gzipped files.");
+				return;
+			}
+
+			if (!GZipUtils.isGZipped(file)) {
+				Dialogue.showWarning(String.format("File=%s is not a valid gzipped file.", file.getName()));
+				return;
+			}
+
+		}
+
 		createTask(new Task<Boolean>() {
 
 			@Override
@@ -735,6 +748,7 @@ public final class StoreController implements Initializable {
 				FileStore store = cache.getStore(selectedIndex);
 
 				int fileCount = 0;
+
 				for (File file : files) {
 
 					int fileId = store.getFileCount();
@@ -758,10 +772,7 @@ public final class StoreController implements Initializable {
 
 				}
 
-				Platform.runLater(() -> {
-					populateTable(selectedIndex);
-				});
-
+				Platform.runLater(() -> populateTable(selectedIndex));
 				return true;
 			}
 
