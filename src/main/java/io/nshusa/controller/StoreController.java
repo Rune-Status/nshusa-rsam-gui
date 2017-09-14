@@ -323,6 +323,8 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		data.clear();
+
 		createTask(new Task<Boolean>() {
 
 			@Override
@@ -332,10 +334,6 @@ public final class StoreController implements Initializable {
 				if (store == null) {
 					return false;
 				}
-
-				Platform.runLater(() -> {
-					data.clear();
-				});
 
 				final List<StoreEntryWrapper> storeWrappers = new ArrayList<>();
 
@@ -414,7 +412,7 @@ public final class StoreController implements Initializable {
 				stage.setTitle("Archive Editor");
 				Scene scene = new Scene(root);
 				scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
-				stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+				stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/app_icon_128.png")));
 				stage.setScene(scene);
 				stage.initStyle(StageStyle.TRANSPARENT);
 				stage.setResizable(false);
@@ -462,7 +460,7 @@ public final class StoreController implements Initializable {
 				imageArchiveController.setStage(stage);
 				Scene scene = new Scene(root);
 				scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
-				stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+				stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/app_icon_128.png")));
 				stage.setScene(scene);
 				stage.initStyle(StageStyle.TRANSPARENT);
 				stage.setResizable(false);
@@ -1026,7 +1024,7 @@ public final class StoreController implements Initializable {
 			stage.setTitle("Archive Editor");
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
-			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/app_icon_128.png")));
 			stage.setScene(scene);
 			stage.initStyle(StageStyle.TRANSPARENT);
 			stage.setResizable(false);
@@ -1053,7 +1051,7 @@ public final class StoreController implements Initializable {
 			stage.setTitle("Image Archive Editor");
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
-			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/app_icon_128.png")));
 			stage.setScene(scene);
 			stage.initStyle(StageStyle.TRANSPARENT);
 			stage.setResizable(false);

@@ -2,7 +2,6 @@ package io.nshusa;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -365,7 +364,7 @@ public class App extends Application {
 			App.scene = scene;
 			scene.getStylesheets().add(App.class.getResource("/style.css").toExternalForm());
 			stage.setScene(scene);
-			stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/app_icon_128.png")));
+			stage.getIcons().add(new Image(getClass().getResourceAsStream("/icons/app_icon_128.png")));
 			stage.initStyle(StageStyle.TRANSPARENT);
 			stage.setResizable(false);
 			stage.centerOnScreen();

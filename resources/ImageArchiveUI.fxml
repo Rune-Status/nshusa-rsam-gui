@@ -17,7 +17,7 @@
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </TreeView>
-            <TextField alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
+            <TextField alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>

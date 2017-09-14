@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.scene.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.ArchiveController">
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.ArchiveController">
    <left>
       <VBox prefHeight="504.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
@@ -26,7 +36,7 @@
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </ListView>
-            <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
+            <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
@@ -70,58 +80,10 @@
             </TableView>
             <VBox>
                <children>
-                  <HBox alignment="CENTER_LEFT">
-                     <children>
-                        <Button fx:id="addEntryBtn" mnemonicParsing="false" onAction="#addEntry" text="Add">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="deleteEntryBtn" mnemonicParsing="false" onAction="#removeEntry" text="Remove">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="replaceBtn" mnemonicParsing="false" onAction="#replaceEntry" text="Replace">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameEntry" text="Rename">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpEntry" text="Dump">
-                           <HBox.margin>
-                              <Insets />
-                           </HBox.margin>
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                        <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearArchive" text="Clear">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Button>
-                     </children>
-                  </HBox>
+                  <HBox alignment="CENTER_LEFT" />
                   <HBox alignment="CENTER" VBox.vgrow="NEVER">
                      <children>
-                        <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -157,16 +119,9 @@
             </StackPane>
             <HBox>
                <children>
-                  <Button mnemonicParsing="false" onAction="#createArchive" text="Create" />
-                  <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameArchive" text="Rename" />
-                  <Button fx:id="deleteEntryBtn" mnemonicParsing="false" onAction="#removeArchive" text="Remove">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </Button>
                   <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearProgram" text="Clear">
                      <HBox.margin>
-                        <Insets />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
                      <tooltip>
                         <Tooltip text="This button clears the editor" />

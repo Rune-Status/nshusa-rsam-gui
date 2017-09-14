@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.scene.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.StoreController">
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.StoreController">
    <left>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -26,7 +38,7 @@
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </ListView>
-            <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
+            <TextField fx:id="indexTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
@@ -60,7 +72,7 @@
                   <HBox alignment="CENTER_LEFT" />
                   <HBox alignment="CENTER" VBox.vgrow="NEVER">
                      <children>
-                        <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
+                        <TextField fx:id="fileTf" alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets bottom="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -115,7 +127,7 @@
                      <children>
                       <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#loadFS" text="Load">
                            <HBox.margin>
-                              <Insets />
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                            <tooltip>
                               <Tooltip text="Use this button to unpack your cache" />
@@ -125,15 +137,21 @@
                            <tooltip>
                               <Tooltip text="Use this button to rename a store" />
                            </tooltip>
+                           <HBox.margin>
+                              <Insets right="5.0" top="5.0" />
+                           </HBox.margin>
                         </Button>
                         <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Dump">
                            <tooltip>
                               <Tooltip text="Use this button to dump all entries from a store" />
                            </tooltip>
+                           <HBox.margin>
+                              <Insets right="5.0" top="5.0" />
+                           </HBox.margin>
                         </Button>
                         <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clearProgram" text="Clear">
                            <HBox.margin>
-                              <Insets />
+                              <Insets right="5.0" top="5.0" />
                            </HBox.margin>
                            <tooltip>
                               <Tooltip text="Use this button to clear the editor" />
