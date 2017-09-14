@@ -108,7 +108,7 @@ public final class StoreController implements Initializable {
 
 			MenuItem exportMI = new MenuItem("Export");
 			exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-			exportMI.setOnAction(e -> dumpEntry());
+			exportMI.setOnAction(e -> dumpIndex());
 
 			context.getItems().addAll(repackMI, renameMI, exportMI);
 
