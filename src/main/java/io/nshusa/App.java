@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nshusa.controller.StoreController;
+import io.nshusa.meta.StoreMeta;
 import io.nshusa.model.ArchiveMeta;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -35,30 +36,30 @@ public class App extends Application {
 					AppData.resourcePath.toFile().mkdirs();
 				}
 
-				if (!Files.exists(AppData.storeResourcePath)) {
-					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
-						writer.println("0:archive");
-						writer.println("1:model");
-						writer.println("2:animation");
-						writer.println("3:music");
-						writer.println("4:map");
+				if (!Files.exists(AppData.resourcePath.resolve("stores.json"))) {
+
+					List<StoreMeta> meta = Arrays.asList(new StoreMeta(0, "archive"),
+							new StoreMeta(1, "model"),
+							new StoreMeta(2, "animation"),
+							new StoreMeta(3, "music"),
+							new StoreMeta(4, "map"));
+
+					Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+					try(BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+						writer.write(gson.toJson(meta));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+
 				}
 
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "stores.txt")))) {
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+					Gson gson = new Gson();
 
-					String line;
+					List<StoreMeta> meta = Arrays.asList(gson.fromJson(reader, StoreMeta[].class));
 
-					while((line = reader.readLine()) != null) {
-
-						String[] split = line.split(":");
-
-						AppData.storeNames.put(Integer.parseInt(split[0]), split[1]);
-
-					}
-
+					meta.stream().forEach(it -> AppData.storeNames.put(it.getId(), it.getName()));
 				} catch (FileNotFoundException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

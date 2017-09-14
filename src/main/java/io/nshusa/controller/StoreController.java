@@ -1,11 +1,6 @@
 package io.nshusa.controller;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -14,12 +9,15 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.softgate.fs.FileStore;
 import com.softgate.fs.IndexedFileSystem;
 import com.softgate.fs.binary.Archive;
 
 import io.nshusa.App;
 import io.nshusa.AppData;
+import io.nshusa.meta.StoreMeta;
 import io.nshusa.model.ArchiveMeta;
 import io.nshusa.model.StoreEntryWrapper;
 import io.nshusa.util.Dialogue;
@@ -541,10 +539,14 @@ public final class StoreController implements Initializable {
 	}
 
 	private synchronized void saveStoreCookies() {
-		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.storeResourcePath.toFile()))) {
-			for (Entry<Integer, String> set : AppData.storeNames.entrySet()) {
-				writer.println(set.getKey() + ":" + set.getValue());
-			}
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+			List<StoreMeta> meta = new ArrayList<>();
+
+			AppData.storeNames.entrySet().stream().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
+
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+			writer.write(gson.toJson(meta));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

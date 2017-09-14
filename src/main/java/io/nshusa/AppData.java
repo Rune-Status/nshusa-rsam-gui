@@ -12,9 +12,7 @@ import javafx.scene.image.Image;
 public final class AppData {
 
 	public static final Path resourcePath = Paths.get(System.getProperty("user.home") + File.separator + ".rsam");
-	
-	public static final Path storeResourcePath = resourcePath.resolve("stores.txt");
-	
+
 	public static final Path archiveResourcePath = resourcePath.resolve("archives.json");
 	
 	public static final Path hashResourcePath = resourcePath.resolve("hashes.txt");
