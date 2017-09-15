@@ -133,6 +133,7 @@ public final class StoreController implements Initializable {
 				ContextMenu context = new ContextMenu();
 
 				MenuItem openMI = new MenuItem("Open");
+				openMI.setGraphic(new ImageView(AppData.openFolder16Icon));
 				openMI.setOnAction(e -> openArchive());				
 				context.getItems().add(openMI);
 				

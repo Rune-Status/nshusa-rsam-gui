@@ -43,6 +43,8 @@ public final class AppData {
 
 	public static final Image pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
 
+	public static final Image openFolder16Icon = new Image(App.class.getResourceAsStream("/icons/open_folder_16.png"));
+
 	private AppData() {
 		
 	}
