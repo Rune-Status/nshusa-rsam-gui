@@ -553,7 +553,7 @@ public final class StoreController implements Initializable {
 				@Override
 				protected Boolean call() throws Exception {
 
-					saveStoreCookies();
+					saveStoreMeta();
 
 					double progress = 100.00;
 
@@ -569,7 +569,7 @@ public final class StoreController implements Initializable {
 
 	}
 
-	private synchronized void saveStoreCookies() {
+	private synchronized void saveStoreMeta() {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.resourcePath.toFile(), "stores.json")))) {
 			List<StoreMeta> meta = new ArrayList<>();
 
@@ -614,7 +614,7 @@ public final class StoreController implements Initializable {
 				@Override
 				protected Boolean call() throws Exception {
 
-					saveStoreCookies();
+					saveStoreMeta();
 
 					double progress = 100.00;
 
@@ -680,7 +680,7 @@ public final class StoreController implements Initializable {
 				@Override
 				protected Boolean call() throws Exception {
 
-					saveArchiveCookies();
+					saveArchiveMeta();
 
 					FileStore store = cache.getStore(selectedIndex);
 
@@ -704,11 +704,14 @@ public final class StoreController implements Initializable {
 		}
 	}
 
-	private synchronized void saveArchiveCookies() {
-		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.archiveResourcePath.toFile()))) {
-			for (Entry<Integer, ArchiveMeta> set : AppData.archiveMetas.entrySet()) {
-				writer.println(set.getKey() + ":" + set.getValue().getName() + ":" + set.getValue().isImageArchive());
-			}
+	private synchronized void saveArchiveMeta() {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.resourcePath.resolve("archives.json").toFile()))) {
+
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+			List<ArchiveMeta> metas = new ArrayList<>(AppData.archiveMetas.values());
+
+			writer.write(gson.toJson(metas));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

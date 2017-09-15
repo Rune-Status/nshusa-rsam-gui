@@ -13,10 +13,6 @@ public final class AppData {
 
 	public static final Path resourcePath = Paths.get(System.getProperty("user.home") + File.separator + ".rsam");
 
-	public static final Path archiveResourcePath = resourcePath.resolve("archives.json");
-	
-	public static final Path hashResourcePath = resourcePath.resolve("hashes.txt");
-
 	public static final Image datIcon = new Image(App.class.getResourceAsStream("/icons/dat_icon.png"));
 
 	public static final Image idxIcon = new Image(App.class.getResourceAsStream("/icons/idx_icon.png"));
