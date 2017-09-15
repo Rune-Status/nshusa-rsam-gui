@@ -147,6 +147,7 @@ public final class StoreController implements Initializable {
 				}
 
 				MenuItem renameMI = new MenuItem("Rename");
+				renameMI.setGraphic(new ImageView(AppData.renameIcon16));
 				renameMI.setOnAction(e -> renameArchive());				
 				context.getItems().add(renameMI);
 
