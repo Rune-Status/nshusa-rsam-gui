@@ -157,6 +157,7 @@ public final class StoreController implements Initializable {
 				context.getItems().add(removeMI);
 
 				MenuItem replaceMI = new MenuItem("Replace");
+                replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
 				replaceMI.setOnAction(e -> replaceEntry());				
 				context.getItems().add(replaceMI);
 
