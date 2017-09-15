@@ -448,7 +448,7 @@ public final class ArchiveController implements Initializable {
 	}
 	
 	private synchronized void saveHashes() {
-		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.resourcePath.resolve("hash_names.txt").toFile()))) {
+		try (PrintWriter writer = new PrintWriter(new FileWriter(AppData.RESOURCE_PATH.resolve("hash_names.txt").toFile()))) {
 			for (Entry<Integer, String> set : AppData.commonHashNames.entrySet()) {
 				writer.println(set.getValue());
 			}

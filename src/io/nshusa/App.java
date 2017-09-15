@@ -33,11 +33,11 @@ public class App extends Application {
 			@Override
 			public void run() {
 
-				if (!Files.exists(AppData.resourcePath)) {
-					AppData.resourcePath.toFile().mkdirs();
+				if (!Files.exists(AppData.RESOURCE_PATH)) {
+					AppData.RESOURCE_PATH.toFile().mkdirs();
 				}
 
-				if (!Files.exists(AppData.resourcePath.resolve("stores.json"))) {
+				if (!Files.exists(AppData.RESOURCE_PATH.resolve("stores.json"))) {
 
 					List<StoreMeta> meta = Arrays.asList(new StoreMeta(0, "archive"),
 							new StoreMeta(1, "model"),
@@ -47,7 +47,7 @@ public class App extends Application {
 
 					Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-					try(BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+					try(BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.RESOURCE_PATH.toFile(), "stores.json")))) {
 						writer.write(gson.toJson(meta));
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -55,7 +55,7 @@ public class App extends Application {
 
 				}
 
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.RESOURCE_PATH.toFile(), "stores.json")))) {
 					Gson gson = new Gson();
 
 					List<StoreMeta> meta = Arrays.asList(gson.fromJson(reader, StoreMeta[].class));
@@ -75,11 +75,11 @@ public class App extends Application {
 			@Override
 			public void run() {
 
-				if (!Files.exists(AppData.resourcePath)) {
-					AppData.resourcePath.toFile().mkdirs();
+				if (!Files.exists(AppData.RESOURCE_PATH)) {
+					AppData.RESOURCE_PATH.toFile().mkdirs();
 				}
 
-				if (!Files.exists(AppData.resourcePath.resolve("archives.json"))) {
+				if (!Files.exists(AppData.RESOURCE_PATH.resolve("archives.json"))) {
 
 					List<ArchiveMeta> meta = Arrays.asList(
 							new ArchiveMeta(0, "empty.jag", false),
@@ -92,7 +92,7 @@ public class App extends Application {
 							new ArchiveMeta(7, "wordenc.jag", false),
 							new ArchiveMeta(8, "sound.jag", false));
 
-					try(BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.resourcePath.resolve("archives.json").toFile()))) {
+					try(BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.RESOURCE_PATH.resolve("archives.json").toFile()))) {
 						Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
 						writer.write(gson.toJson(meta));
@@ -102,7 +102,7 @@ public class App extends Application {
 
 				}
 
-				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.resourcePath.toFile(), "archives.json")))) {
+				try(BufferedReader reader = new BufferedReader(new FileReader(new File(AppData.RESOURCE_PATH.toFile(), "archives.json")))) {
 					Gson gson = new Gson();
 
 					List<ArchiveMeta> meta = Arrays.asList(gson.fromJson(reader, ArchiveMeta[].class));
@@ -123,12 +123,12 @@ public class App extends Application {
 			@Override
 			public void run() {
 
-				if (!Files.exists(AppData.resourcePath)) {
-					AppData.resourcePath.toFile().mkdirs();
+				if (!Files.exists(AppData.RESOURCE_PATH)) {
+					AppData.RESOURCE_PATH.toFile().mkdirs();
 				}
 
-				if (!Files.exists(AppData.resourcePath.resolve("hash_names.txt"))) {
-					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.resourcePath.resolve("hash_names.txt").toFile()))) {
+				if (!Files.exists(AppData.RESOURCE_PATH.resolve("hash_names.txt"))) {
+					try(PrintWriter writer = new PrintWriter(new FileWriter(AppData.RESOURCE_PATH.resolve("hash_names.txt").toFile()))) {
 						writer.println("blackmark.dat");
 						writer.println("param.dat");
 						writer.println("param.idx");
@@ -326,7 +326,7 @@ public class App extends Application {
 				}
 
 				try {
-					List<String> lines = Files.readAllLines(AppData.resourcePath.resolve("hash_names.txt"));
+					List<String> lines = Files.readAllLines(AppData.RESOURCE_PATH.resolve("hash_names.txt"));
 
 					lines.stream().forEach(it -> AppData.commonHashNames.put(HashUtils.nameToHash(it), it));
 				} catch (IOException e) {
@@ -337,6 +337,8 @@ public class App extends Application {
 
 
 		}).start();
+
+		AppData.load();
 
 	}
 

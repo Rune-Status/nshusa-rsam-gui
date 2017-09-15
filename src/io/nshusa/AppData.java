@@ -1,6 +1,7 @@
 package io.nshusa;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -11,51 +12,76 @@ import javafx.scene.image.Image;
 
 public final class AppData {
 
-	public static final Path resourcePath = Paths.get(System.getProperty("user.home") + File.separator + ".rsam");
+	public static final Path RESOURCE_PATH = Paths.get(System.getProperty("user.home") + File.separator + ".rsam");
 
-	public static final Image datIcon = new Image(App.class.getResourceAsStream("/icons/dat_icon.png"));
+	public static Image datIcon;
 
-	public static final Image idxIcon = new Image(App.class.getResourceAsStream("/icons/idx_icon.png"));
+	public static Image idxIcon;
 
-	public static final Image txtIcon = new Image(App.class.getResourceAsStream("/icons/txt_icon.png"));
+	public static Image txtIcon;
 
-	public static final Image fileStoreIcon = new Image(App.class.getResourceAsStream("/icons/file_store_icon.png"));
+	public static Image fileStoreIcon;
 
-	public static final Image midiIcon = new Image(App.class.getResourceAsStream("/icons/midi_icon.png"));
+	public static Image midiIcon;
 
-	public static final Image pngIcon = new Image(App.class.getResourceAsStream("/icons/png_icon.png"));
+	public static Image pngIcon;
 
-	public static final Image fileIcon = new Image(App.class.getResourceAsStream("/icons/file_icon.png"));
+	public static Image fileIcon;
 	
-	public static final Image gzipIcon = new Image(App.class.getResourceAsStream("/icons/gzip_icon.png"));
+	public static Image gzipIcon;
 	
-	public static final Image addIcon = new Image(App.class.getResourceAsStream("/icons/action_add.png"));
+	public static Image addIcon;
 	
-	public static final Image deleteIcon = new Image(App.class.getResourceAsStream("/icons/action_delete.png"));
+	public static Image deleteIcon;
 
-	public static final Image clearIcon24 = new Image(App.class.getResourceAsStream("/icons/clear_icon_24.png"));
+	public static Image clearIcon24;
 
-	public static final Image clearIcon16 = new Image(App.class.getResourceAsStream("/icons/clear_icon_16.png"));
+	public static Image clearIcon16;
 
-	public static final Image saveIcon16 = new Image(App.class.getResourceAsStream("/icons/save_16.png"));
+	public static Image saveIcon16;
 
-	public static final Image renameIcon16 = new Image(App.class.getResourceAsStream("/icons/rename_16.png"));
+	public static Image renameIcon16;
 
-	public static final Image pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
+	public static Image pack16Icon;
 
-	public static final Image openFolder16Icon = new Image(App.class.getResourceAsStream("/icons/open_folder_16.png"));
+	public static Image openFolder16Icon;
 
-	public static final Image replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
+	public static Image replace16Icon;
 
-	private AppData() {
-		
-	}
-	
 	public static final Map<Integer, String> storeNames = new HashMap<>();
 	
 	public static final Map<Integer, ArchiveMeta> archiveMetas = new HashMap<>();
 	
 	public static final Map<Integer, String> commonHashNames = new HashMap<>();
+
+	private AppData() {
+
+	}
+
+	public static void load() {
+		try {
+			datIcon = new Image(App.class.getResourceAsStream("/icons/dat_icon.png"));
+			idxIcon = new Image(App.class.getResourceAsStream("/icons/idx_icon.png"));
+			txtIcon = new Image(App.class.getResourceAsStream("/icons/txt_icon.png"));
+			fileStoreIcon = new Image(App.class.getResourceAsStream("/icons/file_store_icon.png"));
+			midiIcon = new Image(App.class.getResourceAsStream("/icons/midi_icon.png"));
+			pngIcon = new Image(App.class.getResourceAsStream("/icons/png_icon.png"));
+			fileIcon = new Image(App.class.getResourceAsStream("/icons/file_icon.png"));
+			gzipIcon = new Image(App.class.getResourceAsStream("/icons/gzip_icon.png"));
+			addIcon = new Image(App.class.getResourceAsStream("/icons/action_add.png"));
+			deleteIcon = new Image(App.class.getResourceAsStream("/icons/action_delete.png"));
+			clearIcon16 = new Image(App.class.getResourceAsStream("/icons/clear_icon_16.png"));
+			clearIcon24 = new Image(App.class.getResourceAsStream("/icons/clear_icon_24.png"));
+			saveIcon16 = new Image(App.class.getResourceAsStream("/icons/save_16.png"));
+			renameIcon16 = new Image(App.class.getResourceAsStream("/icons/rename_16.png"));
+			pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
+			openFolder16Icon = new Image(App.class.getResourceAsStream("/icons/open_folder_16.png"));
+			replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.out.println("Failed to load icons.");
+		}
+	}
 	
 	public static Image getIcon(String extension) {
 		

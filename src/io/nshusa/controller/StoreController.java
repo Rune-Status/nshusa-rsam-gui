@@ -5,7 +5,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -572,7 +571,7 @@ public final class StoreController implements Initializable {
 	}
 
 	private synchronized void saveStoreMeta() {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.resourcePath.toFile(), "stores.json")))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.RESOURCE_PATH.toFile(), "stores.json")))) {
 			List<StoreMeta> meta = new ArrayList<>();
 
 			AppData.storeNames.entrySet().stream().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
@@ -707,7 +706,7 @@ public final class StoreController implements Initializable {
 	}
 
 	private synchronized void saveArchiveMeta() {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.resourcePath.resolve("archives.json").toFile()))) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.RESOURCE_PATH.resolve("archives.json").toFile()))) {
 
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
