@@ -25,6 +25,10 @@ public final class Dialogue {
 
 	public static void openDirectory(String headerText, File dir) {
 
+		if (OSUtils.getOs().isLinux()) {
+			return;
+		}
+
 		OptionMessage alert = new OptionMessage(headerText);
 
 		ButtonType choiceOne = new ButtonType("Yes.");
@@ -40,7 +44,9 @@ public final class Dialogue {
 
 			if (type == choiceOne) {
 				try {
-					Desktop.getDesktop().open(dir);
+					if (Desktop.isDesktopSupported()) {
+						Desktop.getDesktop().open(dir);
+					}
 				} catch (Exception ex) {
 					Dialogue.showException("Error while trying to view image on desktop.", ex);
 				}
