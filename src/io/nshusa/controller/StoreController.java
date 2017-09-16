@@ -424,9 +424,22 @@ public final class StoreController implements Initializable {
 			
 			FileStore store = cache.getStore(0);
 			
-			// this is to check if the archive could be read before adding it to the archive viewer			
+			// this is to check if the archive could be read before adding it to the archive viewer
+
+			byte[] data = store.readFile(wrapper.getId());
+
+			if (data == null) {
+				Dialogue.showWarning(String.format("Failed to open archive=%s", wrapper.getName()));
+				return;
+			}
+
 			@SuppressWarnings("unused")
-			Archive archive = Archive.decode(store.readFile(wrapper.getId()));
+			Archive archive = Archive.decode(data);
+
+			if (archive == null) {
+				Dialogue.showWarning(String.format("Failed to open archive=%s", wrapper.getName())).showAndWait();
+				return;
+			}
 
 			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ArchiveUI.fxml"));
 
@@ -456,7 +469,7 @@ public final class StoreController implements Initializable {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			Dialogue.showWarning("Could not read archive.");
+			Dialogue.showWarning(String.format("Failed to read archive=%s", wrapper.getName()));
 		}
 
 	}
