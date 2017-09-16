@@ -13,8 +13,8 @@ import com.google.gson.GsonBuilder;
 
 import io.nshusa.App;
 import io.nshusa.AppData;
+import io.nshusa.meta.ArchiveMeta;
 import io.nshusa.meta.StoreMeta;
-import io.nshusa.model.ArchiveMeta;
 import io.nshusa.model.StoreEntryWrapper;
 import io.nshusa.rsam.FileStore;
 import io.nshusa.rsam.IndexedFileSystem;
@@ -87,7 +87,7 @@ public final class StoreController implements Initializable {
 		nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
 		extCol.setCellValueFactory(cellData -> cellData.getValue().getExtensionProperty());
 		sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty());
-		iconCol.setCellValueFactory(new PropertyValueFactory<StoreEntryWrapper, ImageView>("image"));
+		iconCol.setCellValueFactory(new PropertyValueFactory<>("image"));
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 
@@ -216,64 +216,53 @@ public final class StoreController implements Initializable {
 			if (cache == null) {
 				return;
 			}
-			
+
 			populateTable(selectedIndex);
 
 		});
 
 		FilteredList<String> filteredIndexes = new FilteredList<>(indexes, p -> true);
 
-		indexTf.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredIndexes.setPredicate(idx -> {
+		indexTf.textProperty().addListener((observable, oldValue, newValue) -> filteredIndexes.setPredicate(idx -> {
 
-				if (newValue == null || newValue.isEmpty()) {
-					return true;
-				}
+            if (newValue == null || newValue.isEmpty()) {
+                return true;
+            }
 
-				String lowerCaseFilter = newValue.toLowerCase();
+            String lowerCaseFilter = newValue.toLowerCase();
 
-				if (idx.toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				} else if (idx.toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				}
-				return false;
-			});
-		});
+            if (idx.toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else if (idx.toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            }
+            return false;
+        }));
 
 		listView.setItems(filteredIndexes);
-
-		listView.setCellFactory(new Callback<ListView<String>, ListCell<String>>() {
-			@Override
-			public ListCell<String> call(ListView<String> list) {
-				return new AttachmentListCell();
-			}
-		});
+		listView.setCellFactory(list -> new AttachmentListCell());
 
 		FilteredList<StoreEntryWrapper> filteredData = new FilteredList<>(data, p -> true);
 
-		fileTf.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(file -> {
+		fileTf.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(file -> {
 
-				if (newValue == null || newValue.isEmpty()) {
-					return true;
-				}
+            if (newValue == null || newValue.isEmpty()) {
+                return true;
+            }
 
-				String lowerCaseFilter = newValue.toLowerCase();
+            String lowerCaseFilter = newValue.toLowerCase();
 
-				if (file.getName().toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				} else if (Integer.toString(file.getId()).contains(lowerCaseFilter)) {
-					return true;
-				} else if (file.getExtension().toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				}
-				return false;
-			});
-		});
+            if (file.getName().toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else if (Integer.toString(file.getId()).contains(lowerCaseFilter)) {
+                return true;
+            } else if (file.getExtension().toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            }
+            return false;
+        }));
 
 		SortedList<StoreEntryWrapper> sortedData = new SortedList<>(filteredData);
-
 		sortedData.comparatorProperty().bind(tableView.comparatorProperty());
 
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -385,11 +374,11 @@ public final class StoreController implements Initializable {
 						
 						ArchiveMeta meta = AppData.archiveMetas.get(i);
 
-						String name = meta == null ? "unknown" : meta.getName();
+						String displayName = meta == null ? "unknown" : meta.getDisplayName();
 
-						storeWrappers.add(new StoreEntryWrapper(i, name, fileData.length));
+						storeWrappers.add(new StoreEntryWrapper(i, displayName, meta.getExtension(), fileData.length));
 					} else {
-						storeWrappers.add(new StoreEntryWrapper(i, gzipped ? i + ".gz" : fileData.length == 0 ? "empty" : Integer.toString(i) , fileData.length));
+						storeWrappers.add(new StoreEntryWrapper(i, Integer.toString(i), gzipped ? "gz" : fileData.length == 0 ? "empty" : Integer.toString(i) , fileData.length));
 					}
 
 					double progress = ((double) (i + 1) / entries) * 100;
@@ -667,21 +656,37 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
-		Optional<String> result = Dialogue.showInput("Enter a new name", "").showAndWait();
+		Optional<String> displayNameResult = Dialogue.showInput("Enter the display name", "").showAndWait();
 
-		if (result.isPresent()) {
-			String name = result.get();
+		if (!displayNameResult.isPresent()) {
+			return;
+		}
 
-			if (name == null) {
-				Dialogue.showWarning("Name cannot be null");
+		Optional<String> fileNameResult = Dialogue.showInput("Enter the file name", "").showAndWait();
+
+		if (!fileNameResult.isPresent()) {
+			return;
+		}
+
+		String displayName = displayNameResult.get();
+
+		String fileName = fileNameResult.get();
+
+			if (displayName.isEmpty()) {
+				Dialogue.showWarning("Display name cannot be empty");
 				return;
-			} else if (name.isEmpty()) {
-				Dialogue.showWarning("Name cannot be empty");
-				return;
-			} else if (name.length() >= 20) {
-				Dialogue.showWarning("Name must be shorter than 20 characters");
+			} else if (displayName.length() >= 20) {
+				Dialogue.showWarning("Display name must be shorter than 20 characters");
 				return;
 			}
+
+		if (fileName.isEmpty()) {
+			Dialogue.showWarning("File name name cannot be empty");
+			return;
+		} else if (fileName.length() >= 20) {
+			Dialogue.showWarning("File name name must be shorter than 20 characters");
+			return;
+		}
 			
 			ArchiveMeta meta = AppData.archiveMetas.get(selectedEntry);
 			
@@ -689,7 +694,7 @@ public final class StoreController implements Initializable {
 				return;
 			}
 
-			AppData.archiveMetas.put(selectedEntry, new ArchiveMeta(selectedEntry, name, meta.isImageArchive()));
+			AppData.archiveMetas.put(selectedEntry, new ArchiveMeta(selectedEntry, displayName, fileName, meta.isImageArchive()));
 
 			createTask(new Task<Boolean>() {
 
@@ -707,17 +712,12 @@ public final class StoreController implements Initializable {
 					updateMessage(String.format("%.2f%s", progress, "%"));
 					updateProgress(1, 1);
 
-					Platform.runLater(() -> {
-						data.set(selectedEntry,
-								new StoreEntryWrapper(selectedEntry, name, fileData == null ? 0 : fileData.length));
-					});
-
+					Platform.runLater(() ->	data.set(selectedEntry,	new StoreEntryWrapper(selectedEntry, displayName, meta.getExtension(), fileData == null ? 0 : fileData.length)));
 					return true;
 				}
 
 			});
 
-		}
 	}
 
 	private synchronized void saveArchiveMeta() {

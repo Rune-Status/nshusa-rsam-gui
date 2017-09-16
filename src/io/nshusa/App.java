@@ -8,8 +8,8 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.nshusa.controller.StoreController;
+import io.nshusa.meta.ArchiveMeta;
 import io.nshusa.meta.StoreMeta;
-import io.nshusa.model.ArchiveMeta;
 import io.nshusa.rsam.util.HashUtils;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -82,15 +82,15 @@ public class App extends Application {
 				if (!Files.exists(AppData.RESOURCE_PATH.resolve("archives.json"))) {
 
 					List<ArchiveMeta> meta = Arrays.asList(
-							new ArchiveMeta(0, "empty.jag", false),
-							new ArchiveMeta(1, "title.jag", true),
-							new ArchiveMeta(2, "config.jag", false),
-							new ArchiveMeta(3, "interface.jag", false),
-							new ArchiveMeta(4, "media.jag", true),
-							new ArchiveMeta(5, "versionlist.jag", false),
-							new ArchiveMeta(6, "texture.jag", true),
-							new ArchiveMeta(7, "wordenc.jag", false),
-							new ArchiveMeta(8, "sound.jag", false));
+							new ArchiveMeta(0, "empty", "empty", false),
+							new ArchiveMeta(1, "title screen", "title.jag", true),
+							new ArchiveMeta(2, "config", "config.jag", false),
+							new ArchiveMeta(3,  "interface", "interface.jag", false),
+							new ArchiveMeta(4, "2d graphics", "media.jag", true),
+							new ArchiveMeta(5, "chat system","versionlist.jag", false),
+							new ArchiveMeta(6, "texture", "texture.jag", true),
+							new ArchiveMeta(7, "chat system","wordenc.jag", false),
+							new ArchiveMeta(8, "sound effects","sound.jag", false));
 
 					try(BufferedWriter writer = new BufferedWriter(new FileWriter(AppData.RESOURCE_PATH.resolve("archives.json").toFile()))) {
 						Gson gson = new GsonBuilder().setPrettyPrinting().create();

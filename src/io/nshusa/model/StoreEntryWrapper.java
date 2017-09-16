@@ -19,12 +19,12 @@ public class StoreEntryWrapper {
 	
 	private ImageView image;
 	
-	public StoreEntryWrapper(int id, String name, int size) {		
+	public StoreEntryWrapper(int id, String name, String extension, int size) {
 		this.id = new SimpleIntegerProperty(id).asObject();
 		this.name = new SimpleStringProperty(name.contains(".") ? name.substring(0, name.lastIndexOf(".")) : name);
-		this.extension = new SimpleStringProperty(name.contains(".") ? name.substring(name.lastIndexOf(".") + 1, name.length()) : "none");
+		this.extension = new SimpleStringProperty(extension);
 		this.size = new SimpleStringProperty(StringUtils.readableFileSize(size));
-		this.image = new ImageView(AppData.getIcon(name.contains(".") ? name.substring(name.lastIndexOf(".") + 1, name.length()) : "none"));
+		this.image = new ImageView(AppData.getIcon(extension));
 	}
 	
 	public ObservableValue<Integer> idProperty() {

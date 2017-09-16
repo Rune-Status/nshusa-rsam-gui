@@ -1,13 +1,12 @@
 package io.nshusa;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.nshusa.model.ArchiveMeta;
+import io.nshusa.meta.ArchiveMeta;
 import javafx.scene.image.Image;
 
 public final class AppData {

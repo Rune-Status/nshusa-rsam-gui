@@ -12,7 +12,7 @@ public final class ArchiveWrapper {
 	
 	public ArchiveWrapper(int id) {	
 		this.id = new SimpleIntegerProperty(id);
-		this.name = new SimpleStringProperty(AppData.archiveMetas.get(id) == null ? Integer.toString(id) : AppData.archiveMetas.get(id).getName());	
+		this.name = new SimpleStringProperty(AppData.archiveMetas.get(id) == null ? Integer.toString(id) : AppData.archiveMetas.get(id).getDisplayName());
 	}
 	
 	public int getId() {

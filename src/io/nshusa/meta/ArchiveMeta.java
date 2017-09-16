@@ -1,29 +1,57 @@
 package io.nshusa.meta;
 
+import java.util.Objects;
+
 public class ArchiveMeta {
 
     private final int id;
 
-    private final String name;
+    private final String displayName;
 
-    private final boolean isImageArchive;
+    private final String fileName;
 
-    public ArchiveMeta(int id, String name, boolean isImageArchive) {
+    private final boolean imageArchive;
+
+    public ArchiveMeta(int id, String displayName, String fileName, boolean isImageArchive) {
         this.id = id;
-        this.name = name;
-        this.isImageArchive = isImageArchive;
+        this.displayName = displayName;
+        this.fileName = fileName;
+        this.imageArchive = isImageArchive;
     }
 
     public int getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 
     public boolean isImageArchive() {
-        return isImageArchive;
+        return imageArchive;
+    }
+
+    public String getExtension() {
+        return fileName.lastIndexOf(".") != -1 ? fileName.substring(fileName.lastIndexOf(".") + 1 ,fileName.length()) : "dat";
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, displayName, fileName, imageArchive);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof ArchiveMeta) {
+            ArchiveMeta meta = (ArchiveMeta) o;
+            return meta.hashCode() == hashCode();
+        }
+
+        return false;
     }
 
 }

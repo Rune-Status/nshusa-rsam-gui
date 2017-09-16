@@ -166,9 +166,7 @@ public final class ArchiveController implements Initializable {
 						for (int i = 0; i < entries; i++) {
 							final ArchiveEntry entry = archive.getEntries().get(i);
 							
-							Platform.runLater(() -> {
-								data.add(new ArchiveEntryWrapper(entry));
-							});
+							Platform.runLater(() ->	data.add(new ArchiveEntryWrapper(entry)));
 							
 							double progress = ((double)(i + 1) / entries) * 100;
 							
@@ -566,9 +564,7 @@ public final class ArchiveController implements Initializable {
 
 							archive.getEntries().add(entry);
 							
-							Platform.runLater(() -> {
-								data.add(new ArchiveEntryWrapper(entry));
-							});
+							Platform.runLater(() ->	data.add(new ArchiveEntryWrapper(entry)));
 							
 							double progress = ((i + 1) / selectedFiles.size()) * 100;
 							
