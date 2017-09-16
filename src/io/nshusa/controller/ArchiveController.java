@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -31,14 +32,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -87,6 +81,58 @@ public final class ArchiveController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
+		ContextMenu listViewCM = new ContextMenu();
+
+		MenuItem renameMI = new MenuItem("Rename");
+		renameMI.setGraphic(new ImageView(AppData.renameIcon16));
+		renameMI.setOnAction(e -> renameArchive());
+
+		MenuItem removeMI = new MenuItem("Remove");
+		removeMI.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI.setOnAction(e -> removeArchive());
+
+		MenuItem exportMI = new MenuItem("Export");
+		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI.setOnAction(e -> dumpArchive());
+
+		listViewCM.getItems().addAll(Arrays.asList(renameMI, removeMI, exportMI));
+
+		listView.setContextMenu(listViewCM);
+
+		ContextMenu tableCM = new ContextMenu();
+
+		MenuItem addMI = new MenuItem("Add");
+		addMI.setGraphic(new ImageView(AppData.addIcon));
+		addMI.setOnAction(e -> addEntry());
+
+		MenuItem renameMI2 = new MenuItem("Rename");
+		renameMI2.setGraphic(new ImageView(AppData.renameIcon16));
+		renameMI2.setOnAction(e -> renameEntry());
+
+		MenuItem identifyMI = new MenuItem("Identify");
+		identifyMI.setGraphic(new ImageView(AppData.identify16Icon));
+		identifyMI.setOnAction(e -> identifyHash());
+
+		MenuItem removeMI2 = new MenuItem("Remove");
+		removeMI2.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI2.setOnAction(e -> removeEntry());
+
+		MenuItem replaceMI2 = new MenuItem("Replace");
+		replaceMI2.setGraphic(new ImageView(AppData.replace16Icon));
+		replaceMI2.setOnAction(e -> replaceEntry());
+
+		MenuItem exportMI2 = new MenuItem("Export");
+		exportMI2.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI2.setOnAction(e -> dumpEntry());
+
+		MenuItem clearMI = new MenuItem("Clear");
+		clearMI.setGraphic(new ImageView(AppData.clearIcon16));
+		clearMI.setOnAction(e -> clearArchive());
+
+		tableCM.getItems().addAll(Arrays.asList(addMI, renameMI2, identifyMI, removeMI2, replaceMI2, exportMI2, clearMI));
+
+		tableView.setContextMenu(tableCM);
+
 		hashCol.setCellValueFactory(cellData -> cellData.getValue().idProperty());
 		nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
 		extCol.setCellValueFactory(cellData -> cellData.getValue().getExtensionProperty());
@@ -104,7 +150,7 @@ public final class ArchiveController implements Initializable {
 			if (newSelection.getId() < 0) {
 				return;
 			}
-			
+
 			createTask(new Task<Boolean>() {
 
 				@Override

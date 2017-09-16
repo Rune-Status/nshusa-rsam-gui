@@ -48,6 +48,8 @@ public final class AppData {
 
 	public static Image replace16Icon;
 
+	public static Image identify16Icon;
+
 	public static final Map<Integer, String> storeNames = new HashMap<>();
 	
 	public static final Map<Integer, ArchiveMeta> archiveMetas = new HashMap<>();
@@ -77,6 +79,7 @@ public final class AppData {
 			pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
 			openFolder16Icon = new Image(App.class.getResourceAsStream("/icons/open_folder_16.png"));
 			replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
+			identify16Icon = new Image(App.class.getResourceAsStream("/icons/identify_16.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Failed to load icons.");
