@@ -909,12 +909,6 @@ public final class StoreController implements Initializable {
 
 		final List<Integer> selectedIndexes = tableView.getSelectionModel().getSelectedIndices();
 
-		final List<StoreEntryWrapper> selectedEntries = tableView.getSelectionModel().getSelectedItems();
-
-		if (selectedEntries == null) {
-			return;
-		}
-
 		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
 		if (selectedDirectory == null) {
@@ -928,9 +922,13 @@ public final class StoreController implements Initializable {
 				final FileStore store = cache.getStore(selectedIndex);
 
 				for (int i = 0; i < selectedIndexes.size(); i++) {
-					int selectedEntryIndex = selectedIndexes.get(i);
+					final int selectedEntryIndex = selectedIndexes.get(i);
 
-					StoreEntryWrapper storeWrapper = selectedEntries.get(i);
+					ArchiveMeta meta = AppData.archiveMetas.get(selectedEntryIndex);
+
+					if (meta == null) {
+						continue;
+					}
 
 					byte[] fileData = store.readFile(selectedEntryIndex);
 
@@ -939,7 +937,7 @@ public final class StoreController implements Initializable {
 					}
 
 					try (FileOutputStream fos = new FileOutputStream(
-							new File(selectedDirectory, storeWrapper.getName() + "." + storeWrapper.getExtension()))) {
+							new File(selectedDirectory, meta.getFileName()))) {
 						fos.write(fileData);
 					} catch (FileNotFoundException e) {
 						e.printStackTrace();
