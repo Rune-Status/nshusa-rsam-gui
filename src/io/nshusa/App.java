@@ -87,7 +87,7 @@ public class App extends Application {
 							new ArchiveMeta(2, "config", "config.jag", false),
 							new ArchiveMeta(3,  "interface", "interface.jag", false),
 							new ArchiveMeta(4, "2d graphics", "media.jag", true),
-							new ArchiveMeta(5, "chat system","versionlist.jag", false),
+							new ArchiveMeta(5, "update list","versionlist.jag", false),
 							new ArchiveMeta(6, "texture", "texture.jag", true),
 							new ArchiveMeta(7, "chat system","wordenc.jag", false),
 							new ArchiveMeta(8, "sound effects","sound.jag", false));
