@@ -143,6 +143,7 @@ public final class StoreController implements Initializable {
 				if (meta != null) {
 					if (meta.isImageArchive()) {
 						MenuItem viewMI = new MenuItem("View");
+						viewMI.setGraphic(new ImageView(AppData.view16Icon));
 						viewMI.setOnAction(e -> viewArchive());				
 						context.getItems().add(viewMI);
 					}
