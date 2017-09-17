@@ -2,6 +2,8 @@ package io.nshusa.controller;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -362,13 +364,15 @@ public final class StoreController implements Initializable {
 
 				for (int i = 0; i < entries; i++) {
 
-					byte[] fileData = store.readFile(i);
+					ByteBuffer fileBuffer = store.readFile(i);
 
-					if (fileData == null) {
-						fileData = new byte[0];
+					if (fileBuffer == null) {
+						fileBuffer = ByteBuffer.wrap(new byte[0]);
 					}
 
-					boolean gzipped = GZipUtils.isGZipped(fileData);
+					byte[] bytes= fileBuffer.array();
+
+					boolean gzipped = GZipUtils.isGZipped(bytes);
 
 					if (storeId == 0) {
 						
@@ -376,9 +380,9 @@ public final class StoreController implements Initializable {
 
 						String displayName = meta == null ? "unknown" : meta.getDisplayName();
 
-						storeWrappers.add(new StoreEntryWrapper(i, displayName, meta.getExtension(), fileData.length));
+						storeWrappers.add(new StoreEntryWrapper(i, displayName, meta.getExtension(), bytes.length));
 					} else {
-						storeWrappers.add(new StoreEntryWrapper(i, Integer.toString(i), gzipped ? "gz" : fileData.length == 0 ? "empty" : Integer.toString(i) , fileData.length));
+						storeWrappers.add(new StoreEntryWrapper(i, Integer.toString(i), gzipped ? "gz" : bytes.length == 0 ? "empty" : Integer.toString(i) , bytes.length));
 					}
 
 					double progress = ((double) (i + 1) / entries) * 100;
@@ -388,10 +392,7 @@ public final class StoreController implements Initializable {
 
 				}
 
-				Platform.runLater(() -> {
-					data.addAll(storeWrappers);
-				});
-
+				Platform.runLater(() -> data.addAll(storeWrappers));
 				return true;
 			}
 
@@ -415,20 +416,19 @@ public final class StoreController implements Initializable {
 			
 			// this is to check if the archive could be read before adding it to the archive viewer
 
-			byte[] data = store.readFile(wrapper.getId());
+			ByteBuffer dataBuffer = store.readFile(wrapper.getId());
 
-			if (data == null) {
+			if (dataBuffer == null) {
 				Dialogue.showWarning(String.format("Failed to open archive=%s", wrapper.getName()));
 				return;
 			}
 
-			@SuppressWarnings("unused")
-			Archive archive = Archive.decode(data);
-
-			if (archive == null) {
-				Dialogue.showWarning(String.format("Failed to open archive=%s", wrapper.getName())).showAndWait();
-				return;
-			}
+					try {
+						Archive archive = Archive.decode(dataBuffer);
+					} catch (IOException ex) {
+						Dialogue.showWarning(String.format("Failed to open archive=%s", wrapper.getName())).showAndWait();
+						return;
+					}
 
 			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ArchiveUI.fxml"));
 
@@ -705,14 +705,14 @@ public final class StoreController implements Initializable {
 
 					FileStore store = cache.getStore(selectedIndex);
 
-					final byte[] fileData = store.readFile(selectedEntry);
+					final ByteBuffer fileBuffer = store.readFile(selectedEntry);
 
 					double progress = 100.00;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
 					updateProgress(1, 1);
 
-					Platform.runLater(() ->	data.set(selectedEntry,	new StoreEntryWrapper(selectedEntry, displayName, meta.getExtension(), fileData == null ? 0 : fileData.length)));
+					Platform.runLater(() ->	data.set(selectedEntry,	new StoreEntryWrapper(selectedEntry, displayName, meta.getExtension(), fileBuffer == null ? 0 : fileBuffer.remaining())));
 					return true;
 				}
 
@@ -930,19 +930,14 @@ public final class StoreController implements Initializable {
 						continue;
 					}
 
-					byte[] fileData = store.readFile(selectedEntryIndex);
+					ByteBuffer fileBuffer = store.readFile(selectedEntryIndex);
 
-					if (fileData == null) {
+					if (fileBuffer == null) {
 						return false;
 					}
 
-					try (FileOutputStream fos = new FileOutputStream(
-							new File(selectedDirectory, meta.getFileName()))) {
-						fos.write(fileData);
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
+					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, meta.getFileName())).getChannel()) {
+						channel.write(fileBuffer);
 					}
 
 					final double progress = ((double) (i + 1) / selectedIndexes.size()) * 100;
@@ -987,21 +982,16 @@ public final class StoreController implements Initializable {
 				final int storeCount = store.getFileCount();
 
 				for (int i = 0; i < storeCount; i++) {
-					byte[] fileData = store.readFile(i);
+					ByteBuffer fileBuffer = store.readFile(i);
 
-					if (fileData == null) {
+					if (fileBuffer == null) {
 						continue;
 					}
 
 					StoreEntryWrapper wrapper = data.get(i);
 
-					try (FileOutputStream fos = new FileOutputStream(
-							new File(selectedDirectory, wrapper.getName() + "." + wrapper.getExtension()))) {
-						fos.write(fileData);
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
+					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
+						channel.write(fileBuffer);
 					}
 
 					double progress = ((double) (i + 1) / storeCount) * 100;

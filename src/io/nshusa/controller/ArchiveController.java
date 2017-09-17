@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -464,7 +466,7 @@ public final class ArchiveController implements Initializable {
 					AppData.commonHashNames.put(nHash, nName);
 
 					Archive.ArchiveEntry nEntry = new Archive.ArchiveEntry(nHash, entry.getUncompressedSize(), entry.getCompresseedSize(),
-							entry.getData());
+							entry.getBuffer());
 
 					archive.getEntries().set(slot, nEntry);
 					
@@ -560,7 +562,7 @@ public final class ArchiveController implements Initializable {
 
 							AppData.commonHashNames.put(hash, file.getName());
 
-							ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, bzipped);
+							ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, ByteBuffer.wrap(bzipped));
 
 							archive.getEntries().add(entry);
 							
@@ -723,7 +725,7 @@ public final class ArchiveController implements Initializable {
 
 						AppData.commonHashNames.put(hash, selectedFile.getName());
 
-						ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, bzipped);
+						ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, ByteBuffer.wrap(bzipped));
 
 						int slot = archive.indexOf(entryWrapper.getHash());
 
@@ -790,13 +792,12 @@ public final class ArchiveController implements Initializable {
 						
 						ArchiveEntry entry = archive.getEntries().get(i);
 						
-						byte[] fileData = archive.readFile(entry.getHash());
-						
-						try (FileOutputStream fos = new FileOutputStream(
-								new File(dir, StringUtils.getCommonName(entry)))) {
-							fos.write(fileData);
+						ByteBuffer fileBuffer = archive.readFile(entry.getHash());
+
+						try(FileChannel channel = new FileOutputStream(new File(dir, StringUtils.getCommonName(entry))).getChannel()) {
+							channel.write(fileBuffer);
 						}
-						
+
 						double progress = ((i + 1) / entries) * 100;
 						
 						updateMessage(String.format("%.2f%s", progress, "%"));
@@ -804,10 +805,7 @@ public final class ArchiveController implements Initializable {
 						
 					}
 					
-					Platform.runLater(() -> {
-						Dialogue.openDirectory("Would you like to view this file?", dir);
-					});
-					
+					Platform.runLater(() ->	Dialogue.openDirectory("Would you like to view this file?", dir));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -850,11 +848,10 @@ public final class ArchiveController implements Initializable {
 												
 						Archive archive = Archive.decode(store.readFile(fileWrapper.getId()));
 						
-						byte[] fileData = archive.readFile(archiveWrapper.getHash());
-						
-						try (FileOutputStream fos = new FileOutputStream(
-								new File(dir, archiveWrapper.getName() + "." + archiveWrapper.getExtension()))) {
-							fos.write(fileData);
+						ByteBuffer fileBuffer = archive.readFile(archiveWrapper.getHash());
+
+						try(FileChannel channel = new FileOutputStream(new File(dir, archiveWrapper.getName() + "." + archiveWrapper.getExtension())).getChannel()) {
+							channel.write(fileBuffer);
 						}
 						
 						double progress = ((double)(i + 1) / archiveWrappers.size()) * 100;

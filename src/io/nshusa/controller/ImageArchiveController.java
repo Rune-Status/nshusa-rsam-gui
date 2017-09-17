@@ -186,9 +186,9 @@ public class ImageArchiveController implements Initializable {
 
 	private void decodeTitle(Archive archive, ArchiveEntry entry, List<BufferedImage> bImages) {
 			try {
-				byte[] data = archive.readFile("title.dat");
+				ByteBuffer dataBuf = archive.readFile("title.dat");
 
-				try(InputStream is = new ByteArrayInputStream(data)) {
+				try(InputStream is = new ByteArrayInputStream(dataBuf.array())) {
 					bImages.add(ImageIO.read(is));
 				}
 			} catch (IOException e) {
@@ -210,7 +210,7 @@ public class ImageArchiveController implements Initializable {
 			protected Boolean call() throws Exception {
 				try {
 
-					Archive archive = Archive.decode(Files.readAllBytes(archiveFile.toPath()));
+					Archive archive = Archive.decode(ByteBuffer.wrap(Files.readAllBytes(archiveFile.toPath())));
 
 					for (int i = 0; i < archive.getEntries().size(); i++) {
 						ArchiveEntry entry = archive.getEntries().get(i);
