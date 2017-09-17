@@ -51,6 +51,8 @@ public final class AppData {
 
 	public static Image view16Icon;
 
+	public static Image jagIcon;
+
 	public static final Map<Integer, String> storeNames = new HashMap<>();
 	
 	public static final Map<Integer, ArchiveMeta> archiveMetas = new HashMap<>();
@@ -82,6 +84,7 @@ public final class AppData {
 			replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
 			identify16Icon = new Image(App.class.getResourceAsStream("/icons/identify_16.png"));
 			view16Icon = new Image(App.class.getResourceAsStream("/icons/view_16.png"));
+			jagIcon = new Image(App.class.getResourceAsStream("/icons/jag_icon.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Failed to load icons.");
@@ -90,13 +93,19 @@ public final class AppData {
 	
 	public static Image getIcon(String extension) {
 		
-		switch (extension) {		
+		switch (extension) {
+
+			case "gz":
+				return gzipIcon;
 		
 			case "dat":
 				return datIcon;
 			
 			case "idx":
 				return idxIcon;
+
+			case "jag":
+				return jagIcon;
 				
 			case "txt":
 				return txtIcon;
@@ -106,9 +115,6 @@ public final class AppData {
 		
 			case "png":
 				return pngIcon;
-				
-			case "gz":
-				return gzipIcon;
 
 		}
 		
