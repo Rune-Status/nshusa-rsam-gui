@@ -12,7 +12,7 @@
 }
 
 #replaceBtn {
-	-fx-graphic: url('images/replace_icon.png');
+	-fx-graphic: url('icons/replace_icon.png');
 }
 
 #replaceBtn:hover {
@@ -20,7 +20,7 @@
 }
 
 #addEntryBtn {
-	-fx-graphic: url('images/add_icon.png');
+	-fx-graphic: url('icons/add_icon.png');
 }
 
 #addEntryBtn:hover {
@@ -28,7 +28,7 @@
 }
 
 #addFileBtn {
-	-fx-graphic: url('images/add_file_icon.png');
+	-fx-graphic: url('icons/add_file_icon.png');
 }
 
 #addFileBtn:hover {
@@ -36,7 +36,7 @@
 }
 
 #renameBtn {
-	-fx-graphic: url('images/rename_icon.png');
+	-fx-graphic: url('icons/rename_24.png');
 }
 
 #renameBtn:hover {
@@ -48,7 +48,7 @@
 }
 
 #deleteEntryBtn {
-	-fx-graphic: url('images/delete_icon.png');
+	-fx-graphic: url('icons/delete_icon.png');
 }
 
 #deleteEntryBtn:hover {
@@ -60,7 +60,7 @@
 }
 
 #loadBtn {
-	-fx-graphic: url('images/load_icon.png');
+	-fx-graphic: url('icons/load_icon.png');
 }
 
 #loadBtn:hover {
@@ -68,7 +68,7 @@
 }
 
 #saveImageBtn {
-	-fx-graphic: url('images/save_image_icon.png');
+	-fx-graphic: url('icons/save_image_icon.png');
 }
 
 #saveImageBtn:hover {
@@ -80,7 +80,7 @@
 }
 
 #saveBtn {
-	-fx-graphic: url('images/save_icon.png');
+	-fx-graphic: url('icons/save_24.png');
 }
 
 #saveBtn:hover {
@@ -92,7 +92,7 @@
 }
 
 #clearBtn {
-	-fx-graphic: url('images/clear_icon_24.png');
+	-fx-graphic: url('icons/clear_icon_24.png');
 }
 
 #clearBtn:hover {
@@ -104,7 +104,7 @@
 }
 
 #minBtn {
-	-fx-graphic: url('images/minimize_icon_light.png');
+	-fx-graphic: url('icons/minimize_icon_light.png');
 }
 
 #minBtn:hover {
@@ -116,7 +116,7 @@
 }
 
 #maxBtn {
-	-fx-graphic: url('images/maximize_icon_light.png');
+	-fx-graphic: url('icons/maximize_icon_light.png');
 }
 
 #maxBtn:pressed {
@@ -124,7 +124,7 @@
 }
 
 #closeBtn {
-	-fx-graphic: url('images/close_icon_light.png');
+	-fx-graphic: url('icons/close_icon_light.png');
 }
 
 #closeBtn:hover {
@@ -176,7 +176,7 @@
 }
 
 .text-field .search {
-	-fx-background-image:url('images/search_icon.png');
+	-fx-background-image:url('icons/search_icon.png');
 	-fx-background-repeat: no-repeat;
 	-fx-background-position: left center;
 }
@@ -326,7 +326,7 @@
 }
 
 #createArchiveBtn {
-	-fx-graphic: url('images/create_archive_icon.png');
+	-fx-graphic: url('icons/create_archive_icon.png');
 }
 
 #createArchiveBtn:hover {

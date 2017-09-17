@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.ImageArchiveController">
+<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" prefHeight="504.0" prefWidth="763.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.ImageArchiveController">
    <left>
       <VBox prefHeight="479.0" prefWidth="254.0" BorderPane.alignment="CENTER">
          <children>
@@ -17,7 +22,7 @@
                   <Insets left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
             </TreeView>
-            <TextField alignment="CENTER" promptText="Search..." style="-fx-background-image: url('images/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
+            <TextField alignment="CENTER" promptText="Search..." style="-fx-background-image: url('icons/search_icon.png'); -fx-background-repeat: no-repeat; -fx-background-position: left center;">
                <VBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
@@ -53,10 +58,13 @@
             </StackPane>
             <HBox BorderPane.alignment="CENTER">
                <children>
-                  <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#unpack" text="Unpack" />
+                  <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#unpack" text="Unpack">
+                     <HBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </HBox.margin></Button>
                   <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#clear" text="Clear">
                      <HBox.margin>
-                        <Insets right="5.0" />
+                        <Insets bottom="5.0" right="5.0" top="5.0" />
                      </HBox.margin>
                   </Button>
                   <StackPane HBox.hgrow="ALWAYS">
