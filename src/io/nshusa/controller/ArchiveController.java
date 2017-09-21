@@ -255,7 +255,7 @@ public final class ArchiveController implements Initializable {
 				setGraphic(null);
 				setText(null);
 			} else {
-				ImageView imageView = new ImageView(AppData.folder32Icon);
+				ImageView imageView = new ImageView(AppData.jag32Icon);
 				setGraphic(imageView);
 				setText(item.getName());
 			}

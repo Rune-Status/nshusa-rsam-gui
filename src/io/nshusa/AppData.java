@@ -51,7 +51,7 @@ public final class AppData {
 
 	public static Image view16Icon;
 
-	public static Image folder32Icon;
+	public static Image jag32Icon;
 
 	public static Image checksum16Icon;
 
@@ -86,7 +86,7 @@ public final class AppData {
 			replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
 			identify16Icon = new Image(App.class.getResourceAsStream("/icons/identify_16.png"));
 			view16Icon = new Image(App.class.getResourceAsStream("/icons/view_16.png"));
-			folder32Icon = new Image(App.class.getResourceAsStream("/icons/folder_32.png"));
+			jag32Icon = new Image(App.class.getResourceAsStream("/icons/jag_32.png"));
 			checksum16Icon = new Image(App.class.getResourceAsStream("/icons/checksum_16.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -108,7 +108,7 @@ public final class AppData {
 				return idxIcon;
 
 			case "jag":
-				return folder32Icon;
+				return jag32Icon;
 				
 			case "txt":
 				return txtIcon;
