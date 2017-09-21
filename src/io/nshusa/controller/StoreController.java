@@ -23,6 +23,8 @@ import io.nshusa.model.StoreEntryWrapper;
 import io.nshusa.rsam.FileStore;
 import io.nshusa.rsam.IndexedFileSystem;
 import io.nshusa.rsam.binary.Archive;
+import io.nshusa.rsam.util.CompressionUtil;
+import io.nshusa.rsam.util.HashUtils;
 import io.nshusa.util.Dialogue;
 import io.nshusa.util.GZipUtils;
 import javafx.animation.PauseTransition;
@@ -282,7 +284,8 @@ public final class StoreController implements Initializable {
 		if (selectedListIndex > 0 && selectedListIndex < 5) {
 			MenuItem checksumMI = new MenuItem("Checksum");
 			checksumMI.setGraphic(new ImageView(AppData.checksum16Icon));
-			checksumMI.setOnAction(e -> displayChecksum(selectedListIndex, selectedTableIndex));
+
+			checksumMI.setOnAction(e -> displayChecksum(selectedListIndex - 1, selectedTableIndex));
 			context.getItems().add(checksumMI);
 		}
 
@@ -296,19 +299,20 @@ public final class StoreController implements Initializable {
 	}
 
 	private void displayChecksum(int storeId, int fileId) {
-
 		createTask(new Task<Void>() {
 
 			@Override
 			protected Void call() throws Exception {
 				try {
 
-					FileStore store = cache.getStore(storeId);
+					FileStore store = cache.getStore(storeId + 1);
 
-					Archive updateArchive = Archive.decode(cache.readFile(FileStore.ARCHIVE_FILE_STORE, Archive.VERSION_LIST_ARCHIVE));
+					FileStore archiveStore = cache.getStore(FileStore.ARCHIVE_FILE_STORE);
 
-					String[] crcArray = {"", "model_crc", "anim_crc", "midi_crc", "map_crc"};
-					String[] versionArray = {"", "model_version", "anim_version", "midi_version", "map_version"};
+					Archive updateArchive = Archive.decode(archiveStore.readFile(Archive.VERSION_LIST_ARCHIVE));
+
+					String[] crcArray = {"model_crc", "anim_crc", "midi_crc", "map_crc"};
+					String[] versionArray = {"model_version", "anim_version", "midi_version", "map_version"};
 
 					ByteBuffer crcBuf = updateArchive.readFile(crcArray[storeId]);
 
@@ -320,22 +324,88 @@ public final class StoreController implements Initializable {
 
 					final int[] versions = new int[versionCount];
 
+					boolean repackNeeded = false;
+
 					if (fileId > versionCount) {
+						System.out.println("updating version");
+
+                        ByteBuffer buffer = ByteBuffer.allocate(store.getFileCount() * Short.BYTES);
 
 						for (int i = 0; i <  versionCount; i++) {
-							int v = versionBuf.getShort() & 0xFFFF;
-							versions[i] = v;
+							versions[i] = versionBuf.getShort() & 0xFFFF;
+							buffer.putShort((short) versions[i]);
 						}
 
-						int[] nversions = new int[store.getFileCount()];
+						// remove previous version file
+						updateArchive.remove(versionArray[storeId]);
 
-						for (int i = 0; i < versionCount; i++) {
-							if (i < versions.length) {
-								//nversions[i]
+						int hash = HashUtils.nameToHash(versionArray[storeId]);
+
+						if (!updateArchive.isExtracted()) {
+
+							byte[] uncompressed = buffer.array();
+
+							byte[] compressed = CompressionUtil.bzip2(uncompressed);
+
+							updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, uncompressed.length, compressed.length, ByteBuffer.wrap(compressed)));
+
+						} else {
+							updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, buffer.capacity(), buffer.capacity(), buffer));
+						}
+
+						repackNeeded = true;
+
+						System.out.println("updated version");
+					}
+
+					if (fileId > crcCount) {
+						try {
+							System.out.println("updating crc");
+
+							ByteBuffer buffer = ByteBuffer.allocate(store.getFileCount() * Integer.BYTES);
+
+							for (int i = 0; i < store.getFileCount(); i++) {
+
+								int checksum = store.calculateChecksum(updateArchive, i);
+								buffer.putInt(checksum);
 							}
+
+							// remove previous crc file
+							updateArchive.remove(crcArray[storeId]);
+
+							int hash = HashUtils.nameToHash(crcArray[storeId]);
+
+							if (!updateArchive.isExtracted()) {
+
+								byte[] uncompressed = buffer.array();
+
+								byte[] compressed = CompressionUtil.bzip2(uncompressed);
+
+								updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, uncompressed.length, compressed.length, ByteBuffer.wrap(compressed)));
+
+							} else {
+								updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, buffer.capacity(), buffer.capacity(), buffer));
+							}
+
+							repackNeeded = true;
+
+							System.out.println("updated crc");
+						} catch (Exception ex) {
+							ex.printStackTrace();
 						}
 
-						// TODO rebuild version
+					}
+
+					if (repackNeeded) {
+
+						ByteBuffer encoded = ByteBuffer.wrap(updateArchive.encode());
+
+						archiveStore.writeFile(Archive.VERSION_LIST_ARCHIVE, encoded, encoded.capacity());
+
+						System.out.println("repacked versionlist");
+
+						Platform.runLater(() -> Dialogue.showInfo("Updated crcs"));
+
 						return null;
 					}
 
