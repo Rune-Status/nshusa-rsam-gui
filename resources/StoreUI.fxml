@@ -105,12 +105,6 @@
                           <MenuItem mnemonicParsing="false" onAction="#closeProgram" text="Close" />
                         </items>
                       </Menu>
-                      <Menu mnemonicParsing="false" text="Tools">
-                        <items>
-                          <MenuItem mnemonicParsing="false" onAction="#loadArchiveEditor" text="Archive Editor" />
-                            <MenuItem mnemonicParsing="false" onAction="#loadImageArchiveEditor" text="Image Archive Editor" />
-                        </items>
-                      </Menu>
                     </menus>
                   </MenuBar>
                   <HBox>
