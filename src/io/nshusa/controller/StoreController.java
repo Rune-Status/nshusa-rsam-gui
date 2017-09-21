@@ -783,7 +783,7 @@ public final class StoreController implements Initializable {
 
 					byte[] data = Files.readAllBytes(file.toPath());
 
-					store.writeFile(fileId, data, data.length);
+					store.writeFile(fileId, ByteBuffer.wrap(data), data.length);
 
 					fileCount++;
 
@@ -839,7 +839,7 @@ public final class StoreController implements Initializable {
 			protected Boolean call() throws Exception {
 				FileStore store = cache.getStore(selectedIndex);
 
-				store.writeFile(selectedFile, new byte[0], 0);
+				store.writeFile(selectedFile, ByteBuffer.wrap(new byte[0]), 0);
 
 				double progress = 100.00;
 
@@ -884,7 +884,7 @@ public final class StoreController implements Initializable {
 
 				final byte[] data = Files.readAllBytes(selectedFile.toPath());
 
-				store.writeFile(selectedEntry, data, data.length);
+				store.writeFile(selectedEntry, ByteBuffer.wrap(data), data.length);
 
 				final double progress = 100.00;
 
@@ -1048,7 +1048,7 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				for (int i = 0; i < store.getFileCount(); i++) {
-					store.writeFile(i, new byte[0], 0);
+					store.writeFile(i, ByteBuffer.wrap(new byte[0]), 0);
 				}
 
 				Platform.runLater(() -> {

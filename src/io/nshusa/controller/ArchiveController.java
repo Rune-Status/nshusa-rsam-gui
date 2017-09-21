@@ -293,16 +293,14 @@ public final class ArchiveController implements Initializable {
 				
 				FileStore store = cache.getStore(0);
 				
-				Archive archive = Archive.create();
+				Archive archive = new Archive(new ArchiveEntry[0]);
 
 				try {
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(store.getFileCount(), encoded, encoded.length);
+					store.writeFile(store.getFileCount(), ByteBuffer.wrap(encoded), encoded.length);
 
-					Platform.runLater(() -> {
-						indexes.add(new ArchiveWrapper(store.getFileCount()));
-					});
+					Platform.runLater(() ->	indexes.add(new ArchiveWrapper(store.getFileCount())));
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -357,11 +355,9 @@ public final class ArchiveController implements Initializable {
 
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(wrapper.getId(), encoded, encoded.length);
+					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
 
-					Platform.runLater(() -> {
-						data.clear();
-					});
+					Platform.runLater(data::clear);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -470,15 +466,13 @@ public final class ArchiveController implements Initializable {
 
 					archive.getEntries().set(slot, nEntry);
 					
-					Platform.runLater(() -> {
-						data.set(selectedIndex, new ArchiveEntryWrapper(nEntry));
-					});
+					Platform.runLater(() ->	data.set(selectedIndex, new ArchiveEntryWrapper(nEntry)));
 
 					saveHashes();
 
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(wrapper.getId(), encoded, encoded.length);
+					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -582,7 +576,7 @@ public final class ArchiveController implements Initializable {
 
 					byte[] encoded = archive.encode();
 
-					store.writeFile(wrapper.getId(), encoded, encoded.length);
+					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
 
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -652,12 +646,10 @@ public final class ArchiveController implements Initializable {
 					byte[] encoded = archive.encode();					
 
 					if (!archive.getEntries().isEmpty()) {
-						store.writeFile(wrapper.getId(), encoded, encoded.length);
+						store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
 					}
 
-					Platform.runLater(() -> {
-						data.remove(selectedIndex);
-					});
+					Platform.runLater(() ->	data.remove(selectedIndex));
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -747,7 +739,7 @@ public final class ArchiveController implements Initializable {
 
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(wrapper.getId(), encoded, encoded.length);
+					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
