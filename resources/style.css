@@ -345,3 +345,13 @@
 .tree-cell:hover {
 	-fx-text-fill: white;
 }
+
+// scroll panes
+
+.scroll-pane {
+    -fx-background-color: #121212;
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: #121212;
+}
