@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -93,9 +95,9 @@ public final class StoreController implements Initializable {
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 
-			final int selectedRow = newSelection.intValue();
+			final int selectedListRow = newSelection.intValue();
 
-			if (selectedRow == -1) {
+			if (selectedListRow == -1) {
 				return;
 			}
 
@@ -121,89 +123,14 @@ public final class StoreController implements Initializable {
 		
 		tableView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 			
-			final int selectedRow = newSelection.intValue();
+			final int selectedTableIndex = newSelection.intValue();
 			
-			final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-			
-			if (selectedIndex == -1 || selectedRow == -1) {
+			if (selectedTableIndex == -1) {
 				return;
 			}
-			
-			if (selectedIndex == 0) {
 
-				ContextMenu context = new ContextMenu();
+			buildTableViewContextMenu();
 
-				MenuItem openMI = new MenuItem("Open");
-				openMI.setGraphic(new ImageView(AppData.openFolder16Icon));
-				openMI.setOnAction(e -> openArchive());				
-				context.getItems().add(openMI);
-				
-				ArchiveMeta meta = AppData.archiveMetas.get(selectedRow);
-				
-				if (meta != null) {
-					if (meta.isImageArchive()) {
-						MenuItem viewMI = new MenuItem("View");
-						viewMI.setGraphic(new ImageView(AppData.view16Icon));
-						viewMI.setOnAction(e -> viewArchive());				
-						context.getItems().add(viewMI);
-					}
-				}
-
-				MenuItem renameMI = new MenuItem("Rename");
-				renameMI.setGraphic(new ImageView(AppData.renameIcon16));
-				renameMI.setOnAction(e -> renameArchive());				
-				context.getItems().add(renameMI);
-
-				MenuItem removeMI = new MenuItem("Remove");
-				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
-				removeMI.setOnAction(e -> removeEntry());				
-				context.getItems().add(removeMI);
-
-				MenuItem replaceMI = new MenuItem("Replace");
-                replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
-				replaceMI.setOnAction(e -> replaceEntry());				
-				context.getItems().add(replaceMI);
-
-				MenuItem exportMI = new MenuItem("Export");
-				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-				exportMI.setOnAction(e -> dumpEntry());
-				context.getItems().add(exportMI);
-
-				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setOnAction(e -> clearIndex());
-				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
-				context.getItems().add(clearMI);
-
-				tableView.setContextMenu(context);
-
-			} else {
-				ContextMenu context = new ContextMenu();
-
-				MenuItem addMI = new MenuItem("Add");
-				addMI.setGraphic(new ImageView(AppData.addIcon));
-				addMI.setOnAction(e -> addEntry());
-
-				MenuItem removeMI = new MenuItem("Remove");
-				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
-				removeMI.setOnAction(e -> removeEntry());
-
-				MenuItem replaceMI = new MenuItem("Replace");
-				replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
-				replaceMI.setOnAction(e -> replaceEntry());
-
-				MenuItem exportMI = new MenuItem("Export");
-				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-				exportMI.setOnAction(e -> dumpEntry());
-
-				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
-				clearMI.setOnAction(e -> clearIndex());
-
-				context.getItems().addAll(addMI, removeMI, replaceMI, exportMI, clearMI);
-
-				tableView.setContextMenu(context);
-			}
-			
 		});
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -270,6 +197,140 @@ public final class StoreController implements Initializable {
 
 		tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		tableView.setItems(sortedData);
+
+	}
+
+	private void buildTableViewContextMenu() {
+		final int selectedTableIndex = tableView.getSelectionModel().getSelectedIndex();
+
+		final int selectedListIndex = listView.getSelectionModel().getSelectedIndex();
+
+		if (selectedListIndex == -1 || selectedTableIndex == -1) {
+			return;
+		}
+
+		if (selectedListIndex == 0) {
+
+		ContextMenu context = new ContextMenu();
+
+		MenuItem openMI = new MenuItem("Open");
+		openMI.setGraphic(new ImageView(AppData.openFolder16Icon));
+		openMI.setOnAction(e -> openArchive());
+		context.getItems().add(openMI);
+
+		ArchiveMeta meta = AppData.archiveMetas.get(selectedTableIndex);
+
+		if (meta != null) {
+			if (meta.isImageArchive()) {
+				MenuItem viewMI = new MenuItem("View");
+				viewMI.setGraphic(new ImageView(AppData.view16Icon));
+				viewMI.setOnAction(e -> viewArchive());
+				context.getItems().add(viewMI);
+			}
+		}
+
+		MenuItem renameMI = new MenuItem("Rename");
+		renameMI.setGraphic(new ImageView(AppData.renameIcon16));
+		renameMI.setOnAction(e -> renameArchive());
+		context.getItems().add(renameMI);
+
+		MenuItem removeMI = new MenuItem("Remove");
+		removeMI.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI.setOnAction(e -> removeEntry());
+		context.getItems().add(removeMI);
+
+		MenuItem replaceMI = new MenuItem("Replace");
+		replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
+		replaceMI.setOnAction(e -> replaceEntry());
+		context.getItems().add(replaceMI);
+
+		MenuItem exportMI = new MenuItem("Export");
+		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI.setOnAction(e -> dumpEntry());
+		context.getItems().add(exportMI);
+
+		MenuItem clearMI = new MenuItem("Clear");
+		clearMI.setOnAction(e -> clearIndex());
+		clearMI.setGraphic(new ImageView(AppData.clearIcon16));
+		context.getItems().add(clearMI);
+
+		tableView.setContextMenu(context);
+
+	} else {
+		ContextMenu context = new ContextMenu();
+
+		MenuItem addMI = new MenuItem("Add");
+		addMI.setGraphic(new ImageView(AppData.addIcon));
+		addMI.setOnAction(e -> addEntry());
+		context.getItems().add(addMI);
+
+		MenuItem removeMI = new MenuItem("Remove");
+		removeMI.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI.setOnAction(e -> removeEntry());
+		context.getItems().add(removeMI);
+
+		MenuItem replaceMI = new MenuItem("Replace");
+		replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
+		replaceMI.setOnAction(e -> replaceEntry());
+		context.getItems().add(replaceMI);
+
+		MenuItem exportMI = new MenuItem("Export");
+		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI.setOnAction(e -> dumpEntry());
+		context.getItems().add(exportMI);
+
+		if (selectedListIndex > 0 && selectedListIndex < 5) {
+			MenuItem checksumMI = new MenuItem("Checksum");
+			checksumMI.setGraphic(new ImageView(AppData.checksum16Icon));
+			checksumMI.setOnAction(e -> displayChecksum(selectedListIndex, selectedTableIndex));
+			context.getItems().add(checksumMI);
+		}
+
+		MenuItem clearMI = new MenuItem("Clear");
+		clearMI.setGraphic(new ImageView(AppData.clearIcon16));
+		clearMI.setOnAction(e -> clearIndex());
+		context.getItems().add(clearMI);
+
+		tableView.setContextMenu(context);
+		}
+	}
+
+	private void displayChecksum(int storeId, int fileId) {
+
+		createTask(new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					Archive updateArchive = Archive.decode(cache.readFile(FileStore.ARCHIVE_FILE_STORE, Archive.VERSION_LIST_ARCHIVE));
+
+					String[] array = {"", "model_crc", "anim_crc", "midi_crc", "map_crc"};
+
+					ByteBuffer crcBuf = updateArchive.readFile(array[storeId]);
+
+					int count = crcBuf.capacity() / 4;
+
+					if (fileId > count) {
+						System.out.println("need to add this");
+						return null;
+					}
+
+					crcBuf.position(fileId * 4);
+
+					final int crc = crcBuf.getInt();
+
+					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d[%s, crc=%d]", fileId, array[storeId], crc)));
+
+				} catch (IOException e) {
+					e.printStackTrace();
+					Platform.runLater(() -> Dialogue.showWarning(String.format("Could not locate crc file for store=%d file=%d", storeId, fileId)));
+				}
+				return null;
+			}
+		});
+
+
 
 	}
 

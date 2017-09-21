@@ -78,6 +78,10 @@ public final class Dialogue {
 		return new WarningMessage(message);
 	}
 
+	public static InformationMessage showInfo(String message) {
+		return new InformationMessage("Information", message);
+	}
+
 	public static InformationMessage showInfo(String title, String message) {
 		return new InformationMessage(title, message);
 	}
