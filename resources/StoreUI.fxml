@@ -33,7 +33,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
                <tooltip>
-                  <Tooltip text="Search stores by their name or index" />
+                  <Tooltip text="Search file stores by their name or index" />
                </tooltip>
             </TextField>
          </children>
@@ -121,10 +121,13 @@
                            <HBox.margin>
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
+                           <tooltip>
+                              <Tooltip text="Use this button to places files into the selected file store." />
+                           </tooltip>
                         </Button>
                         <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#exportFileStore" text="Export">
                            <tooltip>
-                              <Tooltip text="Use this button to dump all entries from a store" />
+                              <Tooltip text="Use this button to export the selected file store." />
                            </tooltip>
                            <HBox.margin>
                               <Insets right="5.0" top="5.0" />
@@ -135,7 +138,7 @@
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
                            <tooltip>
-                              <Tooltip text="Use this button to clear the editor" />
+                              <Tooltip text="Use this button to rest the program." />
                            </tooltip>
                         </Button>
                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
