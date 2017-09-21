@@ -303,6 +303,8 @@ public final class StoreController implements Initializable {
 			protected Void call() throws Exception {
 				try {
 
+					FileStore store = cache.getStore(storeId);
+
 					Archive updateArchive = Archive.decode(cache.readFile(FileStore.ARCHIVE_FILE_STORE, Archive.VERSION_LIST_ARCHIVE));
 
 					String[] crcArray = {"", "model_crc", "anim_crc", "midi_crc", "map_crc"};
@@ -316,7 +318,27 @@ public final class StoreController implements Initializable {
 
 					final int versionCount = versionBuf.capacity() / Short.BYTES;
 
+					final int[] versions = new int[versionCount];
+
 					if (fileId > versionCount) {
+
+						for (int i = 0; i <  versionCount; i++) {
+							int v = versionBuf.getShort() & 0xFFFF;
+							versions[i] = v;
+						}
+
+						int[] nversions = new int[store.getFileCount()];
+
+						for (int i = 0; i < versionCount; i++) {
+							if (i < versions.length) {
+								//nversions[i]
+							}
+						}
+
+
+
+
+
 						// TODO rebuild version
 						return null;
 					}
@@ -374,12 +396,18 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		try {
+			cache = IndexedFileSystem.init(selectedDirectory.toPath());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			new Dialogue.WarningMessage(String.format("Could not find cache at path=%s", selectedDirectory.toPath().toString()));
+			return;
+		}
+
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
-
-				cache = IndexedFileSystem.init(selectedDirectory.toPath());
 
 				Platform.runLater(() -> populateIndex());
 
