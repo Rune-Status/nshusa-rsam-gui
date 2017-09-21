@@ -101,9 +101,9 @@ public final class StoreController implements Initializable {
 
 			ContextMenu context = new ContextMenu();
 
-			MenuItem repackMI = new MenuItem("Import");
-			repackMI.setGraphic(new ImageView(AppData.pack16Icon));
-			repackMI.setOnAction(e -> addEntry());
+			MenuItem importMI = new MenuItem("Import");
+			importMI.setGraphic(new ImageView(AppData.pack16Icon));
+			importMI.setOnAction(e -> addEntry());
 
 			MenuItem renameMI = new MenuItem("Rename");
 			renameMI.setGraphic(new ImageView(AppData.renameIcon16));
@@ -113,7 +113,7 @@ public final class StoreController implements Initializable {
 			exportMI.setGraphic(new ImageView(AppData.saveIcon16));
 			exportMI.setOnAction(e -> dumpIndex());
 
-			context.getItems().addAll(repackMI, renameMI, exportMI);
+			context.getItems().addAll(importMI, renameMI, exportMI);
 
 			listView.setContextMenu(context);
 
