@@ -352,7 +352,7 @@ public final class StoreController implements Initializable {
 
 					final int crc = crcBuf.getInt();
 
-					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d[version=%d, crc=%d]", fileId, version, crc)));
+					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d%sversion=%d%scrc=%d", fileId, System.lineSeparator(), version, System.lineSeparator(), crc)));
 
 				} catch (IOException e) {
 					e.printStackTrace();
