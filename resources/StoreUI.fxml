@@ -122,7 +122,7 @@
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
                         </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Export">
+                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#exportFileStore" text="Export">
                            <tooltip>
                               <Tooltip text="Use this button to dump all entries from a store" />
                            </tooltip>

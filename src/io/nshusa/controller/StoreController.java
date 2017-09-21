@@ -113,7 +113,7 @@ public final class StoreController implements Initializable {
 
 			MenuItem exportMI = new MenuItem("Export");
 			exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-			exportMI.setOnAction(e -> dumpIndex());
+			exportMI.setOnAction(e -> exportFileStore());
 
 			context.getItems().addAll(importMI, renameMI, exportMI);
 
@@ -1056,11 +1056,11 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void dumpIndex() {
+	private void exportFileStore() {
 
-		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+		final int selectedStoreIndex = listView.getSelectionModel().getSelectedIndex();
 
-		if (selectedIndex == -1 || cache == null) {
+		if (selectedStoreIndex == -1) {
 			return;
 		}
 
@@ -1070,11 +1070,17 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		File outputDir = new File(selectedDirectory, "index" + selectedStoreIndex);
+
+		if (!outputDir.exists()) {
+			outputDir.mkdirs();
+		}
+
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedStoreIndex);
 
 				final int storeCount = store.getFileCount();
 
@@ -1087,7 +1093,7 @@ public final class StoreController implements Initializable {
 
 					StoreEntryWrapper wrapper = data.get(i);
 
-					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
+					try(FileChannel channel = new FileOutputStream(new File(outputDir, wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
 						channel.write(fileBuffer);
 					}
 
@@ -1098,7 +1104,7 @@ public final class StoreController implements Initializable {
 
 				}
 
-				Platform.runLater(() -> Dialogue.openDirectory("Would you like to open this directory?", selectedDirectory));
+				Platform.runLater(() -> Dialogue.openDirectory("Would you like to open this directory?", outputDir));
 				return true;
 			}
 
