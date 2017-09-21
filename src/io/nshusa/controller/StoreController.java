@@ -305,22 +305,36 @@ public final class StoreController implements Initializable {
 
 					Archive updateArchive = Archive.decode(cache.readFile(FileStore.ARCHIVE_FILE_STORE, Archive.VERSION_LIST_ARCHIVE));
 
-					String[] array = {"", "model_crc", "anim_crc", "midi_crc", "map_crc"};
+					String[] crcArray = {"", "model_crc", "anim_crc", "midi_crc", "map_crc"};
+					String[] versionArray = {"", "model_version", "anim_version", "midi_version", "map_version"};
 
-					ByteBuffer crcBuf = updateArchive.readFile(array[storeId]);
+					ByteBuffer crcBuf = updateArchive.readFile(crcArray[storeId]);
 
-					int count = crcBuf.capacity() / 4;
+					final int crcCount = crcBuf.capacity() / Integer.BYTES;
 
-					if (fileId > count) {
-						System.out.println("need to add this");
+					ByteBuffer versionBuf = updateArchive.readFile(versionArray[storeId]);
+
+					final int versionCount = versionBuf.capacity() / Short.BYTES;
+
+					if (fileId > versionCount) {
+						// TODO rebuild version
 						return null;
 					}
 
-					crcBuf.position(fileId * 4);
+					versionBuf.position(fileId * Short.BYTES);
+
+					final int version = versionBuf.getShort() & 0xFFFF;
+
+					if (fileId > crcCount) {
+						// TODO rebuild crcs
+						return null;
+					}
+
+					crcBuf.position(fileId * Integer.BYTES);
 
 					final int crc = crcBuf.getInt();
 
-					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d[%s, crc=%d]", fileId, array[storeId], crc)));
+					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d[version=%d, crc=%d]", fileId, version, crc)));
 
 				} catch (IOException e) {
 					e.printStackTrace();
