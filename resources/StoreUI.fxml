@@ -109,13 +109,18 @@
                   </MenuBar>
                   <HBox>
                      <children>
-                      <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#loadFS" text="Load">
+                      <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#importFS" text="Load">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
                            <tooltip>
                               <Tooltip text="Use this button to unpack your cache" />
                            </tooltip>
+                        </Button>
+                        <Button fx:id="importBtn" mnemonicParsing="false" onAction="#addEntry" text="Import">
+                           <HBox.margin>
+                              <Insets right="5.0" top="5.0" />
+                           </HBox.margin>
                         </Button>
                         <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Export">
                            <tooltip>

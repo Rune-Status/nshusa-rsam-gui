@@ -25,7 +25,7 @@ public final class AppData {
 
 	public static Image pngIcon;
 
-	public static Image fileIcon;
+	public static Image file32Icon;
 	
 	public static Image gzipIcon;
 	
@@ -41,7 +41,7 @@ public final class AppData {
 
 	public static Image renameIcon16;
 
-	public static Image pack16Icon;
+	public static Image import16Icon;
 
 	public static Image openFolder16Icon;
 
@@ -51,7 +51,7 @@ public final class AppData {
 
 	public static Image view16Icon;
 
-	public static Image jagIcon;
+	public static Image folder32Icon;
 
 	public static final Map<Integer, String> storeNames = new HashMap<>();
 	
@@ -71,7 +71,7 @@ public final class AppData {
 			fileStoreIcon = new Image(App.class.getResourceAsStream("/icons/file_store_icon.png"));
 			midiIcon = new Image(App.class.getResourceAsStream("/icons/midi_icon.png"));
 			pngIcon = new Image(App.class.getResourceAsStream("/icons/png_icon.png"));
-			fileIcon = new Image(App.class.getResourceAsStream("/icons/file_icon.png"));
+			file32Icon = new Image(App.class.getResourceAsStream("/icons/file_32.png"));
 			gzipIcon = new Image(App.class.getResourceAsStream("/icons/gzip_icon.png"));
 			addIcon = new Image(App.class.getResourceAsStream("/icons/action_add.png"));
 			deleteIcon = new Image(App.class.getResourceAsStream("/icons/action_delete.png"));
@@ -79,12 +79,12 @@ public final class AppData {
 			clearIcon24 = new Image(App.class.getResourceAsStream("/icons/clear_icon_24.png"));
 			saveIcon16 = new Image(App.class.getResourceAsStream("/icons/save_16.png"));
 			renameIcon16 = new Image(App.class.getResourceAsStream("/icons/rename_16.png"));
-			pack16Icon = new Image(App.class.getResourceAsStream("/icons/pack_16.png"));
+			import16Icon = new Image(App.class.getResourceAsStream("/icons/import_16.png"));
 			openFolder16Icon = new Image(App.class.getResourceAsStream("/icons/open_folder_16.png"));
 			replace16Icon = new Image(App.class.getResourceAsStream("/icons/replace_16.png"));
 			identify16Icon = new Image(App.class.getResourceAsStream("/icons/identify_16.png"));
 			view16Icon = new Image(App.class.getResourceAsStream("/icons/view_16.png"));
-			jagIcon = new Image(App.class.getResourceAsStream("/icons/jag_icon.png"));
+			folder32Icon = new Image(App.class.getResourceAsStream("/icons/folder_32.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("Failed to load icons.");
@@ -105,7 +105,7 @@ public final class AppData {
 				return idxIcon;
 
 			case "jag":
-				return jagIcon;
+				return folder32Icon;
 				
 			case "txt":
 				return txtIcon;
@@ -118,7 +118,7 @@ public final class AppData {
 
 		}
 		
-		return fileIcon;
+		return file32Icon;
 		
 	}	
 

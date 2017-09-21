@@ -102,7 +102,7 @@ public final class StoreController implements Initializable {
 			ContextMenu context = new ContextMenu();
 
 			MenuItem importMI = new MenuItem("Import");
-			importMI.setGraphic(new ImageView(AppData.pack16Icon));
+			importMI.setGraphic(new ImageView(AppData.import16Icon));
 			importMI.setOnAction(e -> addEntry());
 
 			MenuItem renameMI = new MenuItem("Rename");
@@ -289,7 +289,7 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void loadFS() {
+	private void importFS() {
 
 		clearProgram();
 
@@ -306,9 +306,7 @@ public final class StoreController implements Initializable {
 
 				cache = IndexedFileSystem.init(selectedDirectory.toPath());
 
-				Platform.runLater(() -> {
-					populateIndex();
-				});
+				Platform.runLater(() -> populateIndex());
 
 				double progress = 100.00;
 
