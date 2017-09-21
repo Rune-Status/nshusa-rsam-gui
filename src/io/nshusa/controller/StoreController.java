@@ -246,7 +246,7 @@ public final class StoreController implements Initializable {
 
 		MenuItem exportMI = new MenuItem("Export");
 		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-		exportMI.setOnAction(e -> dumpEntry());
+		exportMI.setOnAction(e -> exportStoreEntries());
 		context.getItems().add(exportMI);
 
 		MenuItem clearMI = new MenuItem("Clear");
@@ -276,7 +276,7 @@ public final class StoreController implements Initializable {
 
 		MenuItem exportMI = new MenuItem("Export");
 		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-		exportMI.setOnAction(e -> dumpEntry());
+		exportMI.setOnAction(e -> exportStoreEntries());
 		context.getItems().add(exportMI);
 
 		if (selectedListIndex > 0 && selectedListIndex < 5) {
@@ -334,10 +334,6 @@ public final class StoreController implements Initializable {
 								//nversions[i]
 							}
 						}
-
-
-
-
 
 						// TODO rebuild version
 						return null;
@@ -640,10 +636,7 @@ public final class StoreController implements Initializable {
 
 			String name = result.get();
 
-			if (name == null) {
-				Dialogue.showWarning("Name cannot be null");
-				return;
-			} else if (name.isEmpty()) {
+			if (name.isEmpty()) {
 				Dialogue.showWarning("Name cannot be empty");
 				return;
 			} else if (name.length() >= 20) {
@@ -680,7 +673,7 @@ public final class StoreController implements Initializable {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.RESOURCE_PATH.toFile(), "stores.json")))) {
 			List<StoreMeta> meta = new ArrayList<>();
 
-			AppData.storeNames.entrySet().stream().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
+			AppData.storeNames.entrySet().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
 
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -703,10 +696,7 @@ public final class StoreController implements Initializable {
 		if (result.isPresent()) {
 			String name = result.get();
 
-			if (name == null) {
-				Dialogue.showWarning("Name cannot be null");
-				return;
-			} else if (name.isEmpty()) {
+			if (name.isEmpty()) {
 				Dialogue.showWarning("Name cannot be empty");
 				return;
 			} else if (name.length() >= 20) {
@@ -1002,14 +992,16 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void dumpEntry() {
-		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+	private void exportStoreEntries() {
+		final int selectedStoreIndex = listView.getSelectionModel().getSelectedIndex();
 
-		if (selectedIndex == -1 || cache == null) {
+		if (selectedStoreIndex == -1) {
 			return;
 		}
 
 		final List<Integer> selectedIndexes = tableView.getSelectionModel().getSelectedIndices();
+
+		final List<StoreEntryWrapper> wrappers = tableView.getSelectionModel().getSelectedItems();
 
 		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
@@ -1021,24 +1013,27 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedStoreIndex);
 
 				for (int i = 0; i < selectedIndexes.size(); i++) {
-					final int selectedEntryIndex = selectedIndexes.get(i);
+					final int selectedStoreEntryIndex = selectedIndexes.get(i);
 
-					ArchiveMeta meta = AppData.archiveMetas.get(selectedEntryIndex);
+					ArchiveMeta meta = AppData.archiveMetas.get(selectedStoreEntryIndex);
 
-					if (meta == null) {
+					if (meta == null && selectedStoreIndex == 0) {
 						continue;
 					}
 
-					ByteBuffer fileBuffer = store.readFile(selectedEntryIndex);
+					final StoreEntryWrapper wrapper = wrappers.get(i);
 
-					if (fileBuffer == null) {
+					ByteBuffer fileBuffer = store.readFile(selectedStoreEntryIndex);
+
+					if (fileBuffer == null || fileBuffer.remaining() == 0) {
+						System.out.println("detected 0");
 						return false;
 					}
 
-					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, meta.getFileName())).getChannel()) {
+					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, selectedStoreIndex == 0 ? meta.getFileName() : wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
 						channel.write(fileBuffer);
 					}
 
@@ -1050,7 +1045,7 @@ public final class StoreController implements Initializable {
 				}
 
 				Platform.runLater(() -> {
-					populateTable(selectedIndex);
+					populateTable(selectedStoreIndex);
 
 					Dialogue.openDirectory("Would you like to view this file?", selectedDirectory);
 				});
@@ -1103,9 +1098,7 @@ public final class StoreController implements Initializable {
 
 				}
 
-				Platform.runLater(() -> {
-					Dialogue.openDirectory("Would you like to open this directory?", selectedDirectory);
-				});
+				Platform.runLater(() -> Dialogue.openDirectory("Would you like to open this directory?", selectedDirectory));
 				return true;
 			}
 
