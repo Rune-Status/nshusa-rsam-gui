@@ -1277,6 +1277,15 @@ public final class StoreController implements Initializable {
 	private void clearProgram() {
 		indexes.clear();
 		data.clear();
+
+		try {
+			if (cache == null) {
+				return;
+			}
+			cache.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	@FXML
