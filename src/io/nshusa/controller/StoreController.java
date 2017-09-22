@@ -1239,9 +1239,9 @@ public final class StoreController implements Initializable {
 		try {
 			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ImageArchiveUI.fxml"));
 
-			Parent root = (Parent) loader.load();
+			Parent root = loader.load();
 
-			ImageArchiveController controller = (ImageArchiveController) loader.getController();
+			ImageArchiveController controller = loader.getController();
 
 			Stage stage = new Stage();
 

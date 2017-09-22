@@ -528,6 +528,15 @@ public final class ArchiveController implements Initializable {
 					FileStore store = cache.getStore(0);
 					
 					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
+
+					for (File selectedFile : selectedFiles) {
+						int hash = HashUtils.nameToHash(selectedFile.getName());
+
+						if (archive.contains(hash)) {
+							Platform.runLater(() -> Dialogue.showWarning(String.format("archive=%s already contains a file named %s use replace instead.", wrapper.getName(), selectedFile.getName())));
+							return false;
+						}
+					}
 					
 					for (int i = 0; i < selectedFiles.size(); i++) {
 						try {
@@ -552,7 +561,7 @@ public final class ArchiveController implements Initializable {
 							updateProgress((i + 1), selectedFiles.size());
 
 						} catch (IOException e) {
-							continue;
+							e.printStackTrace();
 						}
 					}
 
