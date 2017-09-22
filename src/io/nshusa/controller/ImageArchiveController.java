@@ -147,8 +147,10 @@ public class ImageArchiveController implements Initializable {
 
 				Platform.runLater(() ->	treeView.getRoot().getChildren().add(root));
 
-				for (int i = 0; i < archive.getEntries().size(); i++) {
-					ArchiveEntry entry = archive.getEntries().get(i);
+				ArchiveEntry[] entries = archive.getEntries();
+
+				for (int i = 0; i < entries.length; i++) {
+					ArchiveEntry entry = entries[i];
 
 					int indexHash = HashUtils.nameToHash("index.dat");
 
@@ -193,10 +195,10 @@ public class ImageArchiveController implements Initializable {
 						parent.getChildren().add(new TreeItem<>(Integer.toString(frame), imageView));
 					}
 
-					double progress = ((double) (i + 2) / archive.getEntries().size()) * 100;
+					double progress = ((double) (i + 2) / entries.length) * 100;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
-					updateProgress((i + 1), archive.getEntries().size() - 1);
+					updateProgress((i + 1), entries.length - 1);
 
 					root.getChildren().add(parent);
 
@@ -256,8 +258,10 @@ public class ImageArchiveController implements Initializable {
 
 					Archive archive = Archive.decode(ByteBuffer.wrap(Files.readAllBytes(archiveFile.toPath())));
 
-					for (int i = 0; i < archive.getEntries().size(); i++) {
-						ArchiveEntry entry = archive.getEntries().get(i);
+					ArchiveEntry[] entries = archive.getEntries();
+
+					for (int i = 0; i < entries.length; i++) {
+						ArchiveEntry entry = entries[i];
 
 						int indexHash = HashUtils.nameToHash("index.dat");
 
@@ -283,10 +287,10 @@ public class ImageArchiveController implements Initializable {
 							parent.getChildren().add(new TreeItem<String>(i + "_" + frame, new ImageView(image)));
 						}
 
-						double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
+						double progress = ((double) (i + 1) / entries.length) * 100;
 
 						updateMessage(String.format("%.2f%s", progress, "%"));
-						updateProgress((i + 1), archive.getEntries().size() - 1);
+						updateProgress((i + 1), entries.length - 1);
 
 						Platform.runLater(() -> treeView.getRoot().getChildren().add(parent));
 

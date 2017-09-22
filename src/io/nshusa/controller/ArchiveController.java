@@ -162,18 +162,18 @@ public final class ArchiveController implements Initializable {
 						FileStore store = cache.getStore(0);
 						
 						final Archive archive = Archive.decode(store.readFile(newSelection.getId()));
+
+						ArchiveEntry[] entries = archive.getEntries();
 						
-						final int entries = archive.getEntries().size();
-						
-						for (int i = 0; i < entries; i++) {
-							final ArchiveEntry entry = archive.getEntries().get(i);
+						for (int i = 0; i < entries.length; i++) {
+							final ArchiveEntry entry = entries[i];
 							
 							Platform.runLater(() ->	data.add(new ArchiveEntryWrapper(entry)));
 							
-							double progress = ((double)(i + 1) / entries) * 100;
+							double progress = ((double)(i + 1) / entries.length) * 100;
 							
 							updateMessage(String.format("%.2f%s", progress, "%"));
-							updateProgress((i + 1), entries);
+							updateProgress((i + 1), entries.length);
 							
 						}
 	
@@ -209,34 +209,27 @@ public final class ArchiveController implements Initializable {
 
 		listView.setItems(filteredIndexes);
 
-		listView.setCellFactory(new Callback<ListView<ArchiveWrapper>, ListCell<ArchiveWrapper>>() {
-			@Override
-			public ListCell<ArchiveWrapper> call(ListView<ArchiveWrapper> list) {
-				return new AttachmentListCell();
-			}
-		});
+		listView.setCellFactory(list -> new AttachmentListCell());
 
 		FilteredList<ArchiveEntryWrapper> filteredData = new FilteredList<>(data, p -> true);
 
-		fileTf.textProperty().addListener((observable, oldValue, newValue) -> {
-			filteredData.setPredicate(file -> {
+		fileTf.textProperty().addListener((observable, oldValue, newValue) -> filteredData.setPredicate(file -> {
 
-				if (newValue == null || newValue.isEmpty()) {
-					return true;
-				}
+            if (newValue == null || newValue.isEmpty()) {
+                return true;
+            }
 
-				String lowerCaseFilter = newValue.toLowerCase();
+            String lowerCaseFilter = newValue.toLowerCase();
 
-				if (file.getName().toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				} else if (Integer.toString(file.getHash()).contains(lowerCaseFilter)) {
-					return true;
-				} else if (file.getExtension().toLowerCase().contains(lowerCaseFilter)) {
-					return true;
-				}
-				return false;
-			});
-		});
+            if (file.getName().toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            } else if (Integer.toString(file.getHash()).contains(lowerCaseFilter)) {
+                return true;
+            } else if (file.getExtension().toLowerCase().contains(lowerCaseFilter)) {
+                return true;
+            }
+            return false;
+        }));
 
 		SortedList<ArchiveEntryWrapper> sortedData = new SortedList<>(filteredData);
 
@@ -298,7 +291,7 @@ public final class ArchiveController implements Initializable {
 				try {
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(store.getFileCount(), ByteBuffer.wrap(encoded), encoded.length);
+					store.writeFile(store.getFileCount(), encoded);
 
 					Platform.runLater(() ->	indexes.add(new ArchiveWrapper(store.getFileCount())));
 					
@@ -350,12 +343,14 @@ public final class ArchiveController implements Initializable {
 					FileStore store = cache.getStore(0);
 					
 					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
-					
-					archive.getEntries().clear();
+
+					for (ArchiveEntry entry : archive.getEntries()) {
+						archive.remove(entry.getHash());
+					}
 
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
+					store.writeFile(wrapper.getId(), encoded);
 
 					Platform.runLater(data::clear);
 					
@@ -447,10 +442,6 @@ public final class ArchiveController implements Initializable {
 
 					String nName = result.get();
 
-					if (nName == null) {
-						return false;
-					}
-
 					int nHash = HashUtils.nameToHash(nName);
 
 					int slot = archive.indexOf(entry.getHash());
@@ -461,18 +452,17 @@ public final class ArchiveController implements Initializable {
 
 					AppData.commonHashNames.put(nHash, nName);
 
-					Archive.ArchiveEntry nEntry = new Archive.ArchiveEntry(nHash, entry.getUncompressedSize(), entry.getCompresseedSize(),
-							entry.getBuffer());
+					archive.rename(entry.getHash(), nHash);
 
-					archive.getEntries().set(slot, nEntry);
-					
+					ArchiveEntry nEntry = archive.getEntry(nHash);
+
 					Platform.runLater(() ->	data.set(selectedIndex, new ArchiveEntryWrapper(nEntry)));
 
 					saveHashes();
 
 					byte[] encoded = archive.encode();
 					
-					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
+					store.writeFile(wrapper.getId(), encoded);
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
@@ -546,20 +536,14 @@ public final class ArchiveController implements Initializable {
 
 							byte[] fileData = Files.readAllBytes(file.toPath());
 
-							byte[] bzipped = CompressionUtil.bzip2(fileData);
-
 							int hash = HashUtils.nameToHash(file.getName());
-
-							int uncompressedSize = fileData.length;
-
-							int compressedSize = bzipped.length;
 
 							AppData.commonHashNames.put(hash, file.getName());
 
-							ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, ByteBuffer.wrap(bzipped));
+							archive.writeFile(hash, fileData);
 
-							archive.getEntries().add(entry);
-							
+							ArchiveEntry entry = archive.getEntry(hash);
+
 							Platform.runLater(() ->	data.add(new ArchiveEntryWrapper(entry)));
 							
 							double progress = ((i + 1) / selectedFiles.size()) * 100;
@@ -576,7 +560,7 @@ public final class ArchiveController implements Initializable {
 
 					byte[] encoded = archive.encode();
 
-					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
+					store.writeFile(wrapper.getId(), encoded);
 
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -640,21 +624,15 @@ public final class ArchiveController implements Initializable {
 					System.out.println(entryWrapper.getHash());
 					
 					archive.remove(entryWrapper.getHash());
-					
-					System.out.println(archive.getEntries().size());
 
 					byte[] encoded = archive.encode();					
 
-					if (!archive.getEntries().isEmpty()) {
-						store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
-					}
+					store.writeFile(wrapper.getId(), encoded);
 
 					Platform.runLater(() ->	data.remove(selectedIndex));
 					
 					updateMessage("100%");
 					updateProgress(1, 1);
-					
-	
 
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -707,17 +685,9 @@ public final class ArchiveController implements Initializable {
 
 						byte[] fileData = Files.readAllBytes(selectedFile.toPath());
 
-						byte[] bzipped = CompressionUtil.bzip2(fileData);
-
 						int hash = HashUtils.nameToHash(selectedFile.getName());
 
-						int uncompressedSize = fileData.length;
-
-						int compressedSize = bzipped.length;
-
 						AppData.commonHashNames.put(hash, selectedFile.getName());
-
-						ArchiveEntry entry = new ArchiveEntry(hash, uncompressedSize, compressedSize, ByteBuffer.wrap(bzipped));
 
 						int slot = archive.indexOf(entryWrapper.getHash());
 
@@ -725,11 +695,17 @@ public final class ArchiveController implements Initializable {
 							return false;
 						}
 
-						archive.getEntries().set(slot, entry);
-						
-						Platform.runLater(() -> {
-							data.set(selectedIndex, new ArchiveEntryWrapper(entry));
-						});
+						ArchiveEntry toReplace = archive.getEntryAt(selectedIndex);
+
+						archive.replaceFile(toReplace.getHash(), hash, fileData);
+
+						ArchiveEntry replaced = archive.getEntry(hash);
+
+						byte[] encoded = archive.encode();
+
+						store.writeFile(wrapper.getId(), encoded);
+
+						Platform.runLater(() -> data.set(selectedIndex, new ArchiveEntryWrapper(replaced)));
 
 					} catch (IOException ex) {
 						ex.printStackTrace();
@@ -737,10 +713,6 @@ public final class ArchiveController implements Initializable {
 
 					saveHashes();
 
-					byte[] encoded = archive.encode();
-					
-					store.writeFile(wrapper.getId(), ByteBuffer.wrap(encoded), encoded.length);
-					
 					updateMessage("100%");
 					updateProgress(1, 1);
 
@@ -751,7 +723,6 @@ public final class ArchiveController implements Initializable {
 			}
 			
 		});
-
 	}
 	
 	@FXML
@@ -778,11 +749,11 @@ public final class ArchiveController implements Initializable {
 					
 					Archive archive = Archive.decode(store.readFile(wrapper.getId()));
 					
-					int entries = archive.getEntries().size();
+					ArchiveEntry[] entries = archive.getEntries();
 					
-					for (int i = 0; i < entries; i++) {
+					for (int i = 0; i < entries.length; i++) {
 						
-						ArchiveEntry entry = archive.getEntries().get(i);
+						ArchiveEntry entry = entries[i];
 						
 						ByteBuffer fileBuffer = archive.readFile(entry.getHash());
 
@@ -790,10 +761,10 @@ public final class ArchiveController implements Initializable {
 							channel.write(fileBuffer);
 						}
 
-						double progress = ((i + 1) / entries) * 100;
+						double progress = ((i + 1) / entries.length) * 100;
 						
 						updateMessage(String.format("%.2f%s", progress, "%"));
-						updateProgress((i + 1), entries);
+						updateProgress((i + 1), entries.length);
 						
 					}
 					

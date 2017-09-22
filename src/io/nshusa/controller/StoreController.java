@@ -341,17 +341,7 @@ public final class StoreController implements Initializable {
 
 						int hash = HashUtils.nameToHash(versionArray[storeId]);
 
-						if (!updateArchive.isExtracted()) {
-
-							byte[] uncompressed = buffer.array();
-
-							byte[] compressed = CompressionUtil.bzip2(uncompressed);
-
-							updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, uncompressed.length, compressed.length, ByteBuffer.wrap(compressed)));
-
-						} else {
-							updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, buffer.capacity(), buffer.capacity(), buffer));
-						}
+						updateArchive.writeFile(hash, buffer.array());
 
 						repackNeeded = true;
 
@@ -375,17 +365,7 @@ public final class StoreController implements Initializable {
 
 							int hash = HashUtils.nameToHash(crcArray[storeId]);
 
-							if (!updateArchive.isExtracted()) {
-
-								byte[] uncompressed = buffer.array();
-
-								byte[] compressed = CompressionUtil.bzip2(uncompressed);
-
-								updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, uncompressed.length, compressed.length, ByteBuffer.wrap(compressed)));
-
-							} else {
-								updateArchive.getEntries().add(new Archive.ArchiveEntry(hash, buffer.capacity(), buffer.capacity(), buffer));
-							}
+							updateArchive.writeFile(hash, buffer.array());
 
 							repackNeeded = true;
 
@@ -398,9 +378,9 @@ public final class StoreController implements Initializable {
 
 					if (repackNeeded) {
 
-						ByteBuffer encoded = ByteBuffer.wrap(updateArchive.encode());
+						byte[] encoded = updateArchive.encode();
 
-						archiveStore.writeFile(Archive.VERSION_LIST_ARCHIVE, encoded, encoded.capacity());
+						archiveStore.writeFile(Archive.VERSION_LIST_ARCHIVE, encoded);
 
 						System.out.println("repacked versionlist");
 
@@ -944,7 +924,7 @@ public final class StoreController implements Initializable {
 
 					byte[] data = Files.readAllBytes(file.toPath());
 
-					store.writeFile(fileId, ByteBuffer.wrap(data), data.length);
+					store.writeFile(fileId, data);
 
 					fileCount++;
 
@@ -1000,7 +980,7 @@ public final class StoreController implements Initializable {
 			protected Boolean call() throws Exception {
 				FileStore store = cache.getStore(selectedIndex);
 
-				store.writeFile(selectedFile, ByteBuffer.wrap(new byte[0]), 0);
+				store.writeFile(selectedFile, new byte[0]);
 
 				double progress = 100.00;
 
@@ -1025,9 +1005,9 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
-		final int selectedEntry = tableView.getSelectionModel().getSelectedIndex();
+		final int selectedEntryIndex = tableView.getSelectionModel().getSelectedIndex();
 
-		if (selectedEntry == -1) {
+		if (selectedEntryIndex == -1) {
 			return;
 		}
 
@@ -1045,16 +1025,14 @@ public final class StoreController implements Initializable {
 
 				final byte[] data = Files.readAllBytes(selectedFile.toPath());
 
-				store.writeFile(selectedEntry, ByteBuffer.wrap(data), data.length);
+				store.writeFile(selectedEntryIndex, data);
 
 				final double progress = 100.00;
 
 				updateMessage(String.format("%.2f%s", progress, "%"));
 				updateProgress(1, 1);
 
-				Platform.runLater(() -> {
-					populateTable(selectedIndex);
-				});
+				Platform.runLater(() ->	populateTable(selectedIndex));
 				return true;
 			}
 
@@ -1218,12 +1196,10 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				for (int i = 0; i < store.getFileCount(); i++) {
-					store.writeFile(i, ByteBuffer.wrap(new byte[0]), 0);
+					store.writeFile(i, new byte[0]);
 				}
 
-				Platform.runLater(() -> {
-					populateTable(selectedIndex);
-				});
+				Platform.runLater(() ->	populateTable(selectedIndex));
 				return true;
 			}
 
