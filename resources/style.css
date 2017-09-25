@@ -59,14 +59,6 @@
 	-fx-background-color: #1F1F1F;
 }
 
-#loadBtn {
-	-fx-graphic: url('icons/load_icon.png');
-}
-
-#loadBtn:hover {
-	-fx-background-color: #292929;
-}
-
 #saveImageBtn {
 	-fx-graphic: url('icons/save_image_icon.png');
 }
@@ -75,7 +67,27 @@
 	-fx-background-color: #292929;
 }
 
+#loadBtn {
+	-fx-graphic: url('icons/load_icon.png');
+}
+
+#loadBtn:hover {
+	-fx-background-color: #292929;
+}
+
 #loadBtn:pressed {
+	-fx-background-color: #1F1F1F;
+}
+
+#importBtn {
+	-fx-graphic: url('icons/import_24.png');
+}
+
+#importBtn:hover {
+	-fx-background-color: #292929;
+}
+
+#importBtn:pressed {
 	-fx-background-color: #1F1F1F;
 }
 
@@ -344,4 +356,14 @@
 
 .tree-cell:hover {
 	-fx-text-fill: white;
+}
+
+// scroll panes
+
+.scroll-pane {
+    -fx-background-color: #121212;
+}
+
+.scroll-pane > .viewport {
+   -fx-background-color: #121212;
 }

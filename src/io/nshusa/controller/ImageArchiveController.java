@@ -60,6 +60,7 @@ public class ImageArchiveController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		imageView.setPreserveRatio(true);
 		treeView.setRoot(new TreeItem<>("Root"));
 
 		treeView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -84,6 +85,32 @@ public class ImageArchiveController implements Initializable {
 				contextMenu.getItems().add(exportMI);
 
 				treeView.setContextMenu(contextMenu);
+
+				Image image = imageView.getImage();
+
+				System.out.println(image.getWidth() + " " + image.getHeight());
+
+				double width = image.getWidth();
+				double height = image.getHeight();
+
+				if (image.getWidth() > 512) {
+					width = 512;
+				}
+
+				if (image.getHeight() > 512) {
+					height = 512;
+				}
+
+				if (image.getWidth() < 16) {
+					width = 16;
+				}
+
+				if (image.getHeight() < 16) {
+					height = 16;
+				}
+
+				this.imageView.setFitWidth(width);
+				this.imageView.setFitHeight(height);
 
 				this.imageView.setImage(imageView.getImage());
 
@@ -120,8 +147,10 @@ public class ImageArchiveController implements Initializable {
 
 				Platform.runLater(() ->	treeView.getRoot().getChildren().add(root));
 
-				for (int i = 0; i < archive.getEntries().size(); i++) {
-					ArchiveEntry entry = archive.getEntries().get(i);
+				ArchiveEntry[] entries = archive.getEntries();
+
+				for (int i = 0; i < entries.length; i++) {
+					ArchiveEntry entry = entries[i];
 
 					int indexHash = HashUtils.nameToHash("index.dat");
 
@@ -146,13 +175,30 @@ public class ImageArchiveController implements Initializable {
 
 						Image image = SwingFXUtils.toFXImage(bImage, null);
 
-						parent.getChildren().add(new TreeItem<String>(Integer.toString(frame), new ImageView(image)));
+						ImageView imageView = new ImageView(image);
+
+						if (image.getWidth() > 128) {
+							imageView.setFitWidth(128);
+						}
+
+						if (image.getHeight() > 128) {
+							imageView.setFitHeight(128);
+						}
+
+						if (image.getWidth() < 16 || image.getHeight() < 32) {
+							imageView.setFitWidth(16);
+							imageView.setFitHeight(16);
+						}
+
+						imageView.setPreserveRatio(true);
+
+						parent.getChildren().add(new TreeItem<>(Integer.toString(frame), imageView));
 					}
 
-					double progress = ((double) (i + 2) / archive.getEntries().size()) * 100;
+					double progress = ((double) (i + 2) / entries.length) * 100;
 
 					updateMessage(String.format("%.2f%s", progress, "%"));
-					updateProgress((i + 1), archive.getEntries().size() - 1);
+					updateProgress((i + 1), entries.length - 1);
 
 					root.getChildren().add(parent);
 
@@ -212,8 +258,10 @@ public class ImageArchiveController implements Initializable {
 
 					Archive archive = Archive.decode(ByteBuffer.wrap(Files.readAllBytes(archiveFile.toPath())));
 
-					for (int i = 0; i < archive.getEntries().size(); i++) {
-						ArchiveEntry entry = archive.getEntries().get(i);
+					ArchiveEntry[] entries = archive.getEntries();
+
+					for (int i = 0; i < entries.length; i++) {
+						ArchiveEntry entry = entries[i];
 
 						int indexHash = HashUtils.nameToHash("index.dat");
 
@@ -239,10 +287,10 @@ public class ImageArchiveController implements Initializable {
 							parent.getChildren().add(new TreeItem<String>(i + "_" + frame, new ImageView(image)));
 						}
 
-						double progress = ((double) (i + 1) / archive.getEntries().size()) * 100;
+						double progress = ((double) (i + 1) / entries.length) * 100;
 
 						updateMessage(String.format("%.2f%s", progress, "%"));
-						updateProgress((i + 1), archive.getEntries().size() - 1);
+						updateProgress((i + 1), entries.length - 1);
 
 						Platform.runLater(() -> treeView.getRoot().getChildren().add(parent));
 

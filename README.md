@@ -1,11 +1,8 @@
 # RS2 Asset Manager (RSAM)
 Is a tool designed to help you access and modify the 2005-2006 RuneScape file system
 
-## Stable release: 1.0.5
-[Download](https://github.com/nshusa/rsam-gui/releases/tag/1.0.5)
-
-## Pre-release: 1.0.6
-[Download](https://github.com/nshusa/rsam-gui/releases/tag/1.0.6.2)
+## Stable release: 1.0.6
+[Download](https://github.com/nshusa/rsam-gui/releases/tag/1.0.6)
 
 ## Features
 * Fully open-source
@@ -16,10 +13,10 @@ Is a tool designed to help you access and modify the 2005-2006 RuneScape file sy
 * Import and Export files
 * Rename files
 * Identify hashes
-* Create directories
+* Tons check it out
 
-![right click](http://i.imgur.com/4qGg4yt.png)
-![archive editor](http://i.imgur.com/37ADCZN.png)
+![image1](https://i.imgur.com/vanxiNy.png)
+![image2](https://i.imgur.com/1rbgGao.png)
 
 ## Notes
 * Your cache must be properly named for this program to read it.
@@ -37,7 +34,7 @@ main_file_cache.idx4
 * If you add multiple files and the files are named like this (35.gz, 39.gz, 47.gz) the program will add these files into slots 35 for the first, 39 for the second, and 47 for the last one. If the file is not named with an index such as some_file.gz, this file will be added as the last index in the file store. The file will be named as the last index in the file store.
 
 ## Meta information
-RS2 Asset Manager stores meta information located in your home directory in a folder called ".rsam".
+RS2 Asset Manager stores information in your home directory in a folder called ".rsam".
 * archives.json
 * stores.json
 * hash_names.txt

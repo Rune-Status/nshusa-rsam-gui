@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.StoreController">
+<BorderPane minHeight="504.0" minWidth="763.0" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="io.nshusa.controller.StoreController">
    <left>
       <VBox BorderPane.alignment="CENTER">
          <children>
@@ -33,7 +33,7 @@
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                </VBox.margin>
                <tooltip>
-                  <Tooltip text="Search stores by their name or index" />
+                  <Tooltip text="Search file stores by their name or index" />
                </tooltip>
             </TextField>
          </children>
@@ -105,17 +105,11 @@
                           <MenuItem mnemonicParsing="false" onAction="#closeProgram" text="Close" />
                         </items>
                       </Menu>
-                      <Menu mnemonicParsing="false" text="Tools">
-                        <items>
-                          <MenuItem mnemonicParsing="false" onAction="#loadArchiveEditor" text="Archive Editor" />
-                            <MenuItem mnemonicParsing="false" onAction="#loadImageArchiveEditor" text="Image Archive Editor" />
-                        </items>
-                      </Menu>
                     </menus>
                   </MenuBar>
                   <HBox>
                      <children>
-                      <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#loadFS" text="Load">
+                      <Button fx:id="loadBtn" mnemonicParsing="false" onAction="#importFS" text="Load">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
@@ -123,17 +117,17 @@
                               <Tooltip text="Use this button to unpack your cache" />
                            </tooltip>
                         </Button>
-                        <Button fx:id="renameBtn" mnemonicParsing="false" onAction="#renameStore" text="Rename">
-                           <tooltip>
-                              <Tooltip text="Use this button to rename a store" />
-                           </tooltip>
+                        <Button fx:id="importBtn" mnemonicParsing="false" onAction="#addEntry" text="Import">
                            <HBox.margin>
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
-                        </Button>
-                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#dumpIndex" text="Export">
                            <tooltip>
-                              <Tooltip text="Use this button to dump all entries from a store" />
+                              <Tooltip text="Use this button to places files into the selected file store." />
+                           </tooltip>
+                        </Button>
+                        <Button fx:id="saveBtn" mnemonicParsing="false" onAction="#exportFileStore" text="Export">
+                           <tooltip>
+                              <Tooltip text="Use this button to export the selected file store." />
                            </tooltip>
                            <HBox.margin>
                               <Insets right="5.0" top="5.0" />
@@ -144,7 +138,7 @@
                               <Insets right="5.0" top="5.0" />
                            </HBox.margin>
                            <tooltip>
-                              <Tooltip text="Use this button to clear the editor" />
+                              <Tooltip text="Use this button to rest the program." />
                            </tooltip>
                         </Button>
                         <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">

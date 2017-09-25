@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +23,8 @@ import io.nshusa.model.StoreEntryWrapper;
 import io.nshusa.rsam.FileStore;
 import io.nshusa.rsam.IndexedFileSystem;
 import io.nshusa.rsam.binary.Archive;
+import io.nshusa.rsam.util.CompressionUtil;
+import io.nshusa.rsam.util.HashUtils;
 import io.nshusa.util.Dialogue;
 import io.nshusa.util.GZipUtils;
 import javafx.animation.PauseTransition;
@@ -93,17 +97,17 @@ public final class StoreController implements Initializable {
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 
-			final int selectedRow = newSelection.intValue();
+			final int selectedListRow = newSelection.intValue();
 
-			if (selectedRow == -1) {
+			if (selectedListRow == -1) {
 				return;
 			}
 
 			ContextMenu context = new ContextMenu();
 
-			MenuItem repackMI = new MenuItem("Import");
-			repackMI.setGraphic(new ImageView(AppData.pack16Icon));
-			repackMI.setOnAction(e -> addEntry());
+			MenuItem importMI = new MenuItem("Import");
+			importMI.setGraphic(new ImageView(AppData.import16Icon));
+			importMI.setOnAction(e -> addEntry());
 
 			MenuItem renameMI = new MenuItem("Rename");
 			renameMI.setGraphic(new ImageView(AppData.renameIcon16));
@@ -111,9 +115,9 @@ public final class StoreController implements Initializable {
 
 			MenuItem exportMI = new MenuItem("Export");
 			exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-			exportMI.setOnAction(e -> dumpIndex());
+			exportMI.setOnAction(e -> exportFileStore());
 
-			context.getItems().addAll(repackMI, renameMI, exportMI);
+			context.getItems().addAll(importMI, renameMI, exportMI);
 
 			listView.setContextMenu(context);
 
@@ -121,89 +125,14 @@ public final class StoreController implements Initializable {
 		
 		tableView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
 			
-			final int selectedRow = newSelection.intValue();
+			final int selectedTableIndex = newSelection.intValue();
 			
-			final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
-			
-			if (selectedIndex == -1 || selectedRow == -1) {
+			if (selectedTableIndex == -1) {
 				return;
 			}
-			
-			if (selectedIndex == 0) {
 
-				ContextMenu context = new ContextMenu();
+			buildTableViewContextMenu();
 
-				MenuItem openMI = new MenuItem("Open");
-				openMI.setGraphic(new ImageView(AppData.openFolder16Icon));
-				openMI.setOnAction(e -> openArchive());				
-				context.getItems().add(openMI);
-				
-				ArchiveMeta meta = AppData.archiveMetas.get(selectedRow);
-				
-				if (meta != null) {
-					if (meta.isImageArchive()) {
-						MenuItem viewMI = new MenuItem("View");
-						viewMI.setGraphic(new ImageView(AppData.view16Icon));
-						viewMI.setOnAction(e -> viewArchive());				
-						context.getItems().add(viewMI);
-					}
-				}
-
-				MenuItem renameMI = new MenuItem("Rename");
-				renameMI.setGraphic(new ImageView(AppData.renameIcon16));
-				renameMI.setOnAction(e -> renameArchive());				
-				context.getItems().add(renameMI);
-
-				MenuItem removeMI = new MenuItem("Remove");
-				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
-				removeMI.setOnAction(e -> removeEntry());				
-				context.getItems().add(removeMI);
-
-				MenuItem replaceMI = new MenuItem("Replace");
-                replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
-				replaceMI.setOnAction(e -> replaceEntry());				
-				context.getItems().add(replaceMI);
-
-				MenuItem exportMI = new MenuItem("Export");
-				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-				exportMI.setOnAction(e -> dumpEntry());
-				context.getItems().add(exportMI);
-
-				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setOnAction(e -> clearIndex());
-				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
-				context.getItems().add(clearMI);
-
-				tableView.setContextMenu(context);
-
-			} else {
-				ContextMenu context = new ContextMenu();
-
-				MenuItem addMI = new MenuItem("Add");
-				addMI.setGraphic(new ImageView(AppData.addIcon));
-				addMI.setOnAction(e -> addEntry());
-
-				MenuItem removeMI = new MenuItem("Remove");
-				removeMI.setGraphic(new ImageView(AppData.deleteIcon));
-				removeMI.setOnAction(e -> removeEntry());
-
-				MenuItem replaceMI = new MenuItem("Replace");
-				replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
-				replaceMI.setOnAction(e -> replaceEntry());
-
-				MenuItem exportMI = new MenuItem("Export");
-				exportMI.setGraphic(new ImageView(AppData.saveIcon16));
-				exportMI.setOnAction(e -> dumpEntry());
-
-				MenuItem clearMI = new MenuItem("Clear");
-				clearMI.setGraphic(new ImageView(AppData.clearIcon16));
-				clearMI.setOnAction(e -> clearIndex());
-
-				context.getItems().addAll(addMI, removeMI, replaceMI, exportMI, clearMI);
-
-				tableView.setContextMenu(context);
-			}
-			
 		});
 
 		listView.getSelectionModel().selectedIndexProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -273,6 +202,220 @@ public final class StoreController implements Initializable {
 
 	}
 
+	private void buildTableViewContextMenu() {
+		final int selectedTableIndex = tableView.getSelectionModel().getSelectedIndex();
+
+		final int selectedListIndex = listView.getSelectionModel().getSelectedIndex();
+
+		if (selectedListIndex == -1 || selectedTableIndex == -1) {
+			return;
+		}
+
+		if (selectedListIndex == 0) {
+
+		ContextMenu context = new ContextMenu();
+
+		MenuItem openMI = new MenuItem("Open");
+		openMI.setGraphic(new ImageView(AppData.openFolder16Icon));
+		openMI.setOnAction(e -> openArchive());
+		context.getItems().add(openMI);
+
+		ArchiveMeta meta = AppData.archiveMetas.get(selectedTableIndex);
+
+		if (meta != null) {
+			if (meta.isImageArchive()) {
+				MenuItem viewMI = new MenuItem("View");
+				viewMI.setGraphic(new ImageView(AppData.view16Icon));
+				viewMI.setOnAction(e -> viewArchive());
+				context.getItems().add(viewMI);
+			}
+		}
+
+		MenuItem renameMI = new MenuItem("Rename");
+		renameMI.setGraphic(new ImageView(AppData.renameIcon16));
+		renameMI.setOnAction(e -> renameArchive());
+		context.getItems().add(renameMI);
+
+		MenuItem removeMI = new MenuItem("Remove");
+		removeMI.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI.setOnAction(e -> removeEntry());
+		context.getItems().add(removeMI);
+
+		MenuItem replaceMI = new MenuItem("Replace");
+		replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
+		replaceMI.setOnAction(e -> replaceEntry());
+		context.getItems().add(replaceMI);
+
+		MenuItem exportMI = new MenuItem("Export");
+		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI.setOnAction(e -> exportStoreEntries());
+		context.getItems().add(exportMI);
+
+		MenuItem clearMI = new MenuItem("Clear");
+		clearMI.setOnAction(e -> clearIndex());
+		clearMI.setGraphic(new ImageView(AppData.clearIcon16));
+		context.getItems().add(clearMI);
+
+		tableView.setContextMenu(context);
+
+	} else {
+		ContextMenu context = new ContextMenu();
+
+		MenuItem addMI = new MenuItem("Add");
+		addMI.setGraphic(new ImageView(AppData.addIcon));
+		addMI.setOnAction(e -> addEntry());
+		context.getItems().add(addMI);
+
+		MenuItem removeMI = new MenuItem("Remove");
+		removeMI.setGraphic(new ImageView(AppData.deleteIcon));
+		removeMI.setOnAction(e -> removeEntry());
+		context.getItems().add(removeMI);
+
+		MenuItem replaceMI = new MenuItem("Replace");
+		replaceMI.setGraphic(new ImageView(AppData.replace16Icon));
+		replaceMI.setOnAction(e -> replaceEntry());
+		context.getItems().add(replaceMI);
+
+		MenuItem exportMI = new MenuItem("Export");
+		exportMI.setGraphic(new ImageView(AppData.saveIcon16));
+		exportMI.setOnAction(e -> exportStoreEntries());
+		context.getItems().add(exportMI);
+
+		if (selectedListIndex > 0 && selectedListIndex < 5) {
+			MenuItem checksumMI = new MenuItem("Checksum");
+			checksumMI.setGraphic(new ImageView(AppData.checksum16Icon));
+
+			checksumMI.setOnAction(e -> displayChecksum(selectedListIndex - 1, selectedTableIndex));
+			context.getItems().add(checksumMI);
+		}
+
+		MenuItem clearMI = new MenuItem("Clear");
+		clearMI.setGraphic(new ImageView(AppData.clearIcon16));
+		clearMI.setOnAction(e -> clearIndex());
+		context.getItems().add(clearMI);
+
+		tableView.setContextMenu(context);
+		}
+	}
+
+	private void displayChecksum(int storeId, int fileId) {
+		createTask(new Task<Void>() {
+
+			@Override
+			protected Void call() throws Exception {
+				try {
+
+					FileStore store = cache.getStore(storeId + 1);
+
+					FileStore archiveStore = cache.getStore(FileStore.ARCHIVE_FILE_STORE);
+
+					Archive updateArchive = Archive.decode(archiveStore.readFile(Archive.VERSION_LIST_ARCHIVE));
+
+					String[] crcArray = {"model_crc", "anim_crc", "midi_crc", "map_crc"};
+					String[] versionArray = {"model_version", "anim_version", "midi_version", "map_version"};
+
+					ByteBuffer crcBuf = updateArchive.readFile(crcArray[storeId]);
+
+					final int crcCount = crcBuf.capacity() / Integer.BYTES;
+
+					ByteBuffer versionBuf = updateArchive.readFile(versionArray[storeId]);
+
+					final int versionCount = versionBuf.capacity() / Short.BYTES;
+
+					final int[] versions = new int[versionCount];
+
+					boolean repackNeeded = false;
+
+					if (fileId > versionCount) {
+						System.out.println("updating version");
+
+                        ByteBuffer buffer = ByteBuffer.allocate(store.getFileCount() * Short.BYTES);
+
+						for (int i = 0; i <  versionCount; i++) {
+							versions[i] = versionBuf.getShort() & 0xFFFF;
+							buffer.putShort((short) versions[i]);
+						}
+
+						// remove previous version file
+						updateArchive.remove(versionArray[storeId]);
+
+						int hash = HashUtils.nameToHash(versionArray[storeId]);
+
+						updateArchive.writeFile(hash, buffer.array());
+
+						repackNeeded = true;
+
+						System.out.println("updated version");
+					}
+
+					if (fileId > crcCount) {
+						try {
+							System.out.println("updating crc");
+
+							ByteBuffer buffer = ByteBuffer.allocate(store.getFileCount() * Integer.BYTES);
+
+							for (int i = 0; i < store.getFileCount(); i++) {
+
+								int checksum = store.calculateChecksum(updateArchive, i);
+								buffer.putInt(checksum);
+							}
+
+							// remove previous crc file
+							updateArchive.remove(crcArray[storeId]);
+
+							int hash = HashUtils.nameToHash(crcArray[storeId]);
+
+							updateArchive.writeFile(hash, buffer.array());
+
+							repackNeeded = true;
+
+							System.out.println("updated crc");
+						} catch (Exception ex) {
+							ex.printStackTrace();
+						}
+
+					}
+
+					if (repackNeeded) {
+
+						byte[] encoded = updateArchive.encode();
+
+						archiveStore.writeFile(Archive.VERSION_LIST_ARCHIVE, encoded);
+
+						System.out.println("repacked versionlist");
+
+						Platform.runLater(() -> Dialogue.showInfo("Updated crcs"));
+
+						return null;
+					}
+
+					versionBuf.position(fileId * Short.BYTES);
+
+					final int version = versionBuf.getShort() & 0xFFFF;
+
+					if (fileId > crcCount) {
+						// TODO rebuild crcs
+						return null;
+					}
+
+					crcBuf.position(fileId * Integer.BYTES);
+
+					final int crc = crcBuf.getInt();
+
+					Platform.runLater(() -> Dialogue.showInfo(String.format("file=%d%sversion=%d%scrc=%d", fileId, System.lineSeparator(), version, System.lineSeparator(), crc)));
+
+				} catch (IOException e) {
+					e.printStackTrace();
+					Platform.runLater(() -> Dialogue.showWarning(String.format("Could not locate crc file for store=%d file=%d", storeId, fileId)));
+				}
+				return null;
+			}
+		});
+
+
+
+	}
+
 	private static class AttachmentListCell extends ListCell<String> {
 		@Override
 		public void updateItem(String item, boolean empty) {
@@ -289,7 +432,7 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void loadFS() {
+	private void importFS() {
 
 		clearProgram();
 
@@ -299,16 +442,20 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		try {
+			cache = IndexedFileSystem.init(selectedDirectory.toPath());
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			new Dialogue.WarningMessage(String.format("Could not find cache at path=%s", selectedDirectory.toPath().toString()));
+			return;
+		}
+
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
 
-				cache = IndexedFileSystem.init(selectedDirectory.toPath());
-
-				Platform.runLater(() -> {
-					populateIndex();
-				});
+				Platform.runLater(() -> populateIndex());
 
 				double progress = 100.00;
 
@@ -539,10 +686,7 @@ public final class StoreController implements Initializable {
 
 			String name = result.get();
 
-			if (name == null) {
-				Dialogue.showWarning("Name cannot be null");
-				return;
-			} else if (name.isEmpty()) {
+			if (name.isEmpty()) {
 				Dialogue.showWarning("Name cannot be empty");
 				return;
 			} else if (name.length() >= 20) {
@@ -579,7 +723,7 @@ public final class StoreController implements Initializable {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(AppData.RESOURCE_PATH.toFile(), "stores.json")))) {
 			List<StoreMeta> meta = new ArrayList<>();
 
-			AppData.storeNames.entrySet().stream().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
+			AppData.storeNames.entrySet().forEach(it -> meta.add(new StoreMeta(it.getKey(), it.getValue())));
 
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -602,10 +746,7 @@ public final class StoreController implements Initializable {
 		if (result.isPresent()) {
 			String name = result.get();
 
-			if (name == null) {
-				Dialogue.showWarning("Name cannot be null");
-				return;
-			} else if (name.isEmpty()) {
+			if (name.isEmpty()) {
 				Dialogue.showWarning("Name cannot be empty");
 				return;
 			} else if (name.length() >= 20) {
@@ -783,7 +924,7 @@ public final class StoreController implements Initializable {
 
 					byte[] data = Files.readAllBytes(file.toPath());
 
-					store.writeFile(fileId, data, data.length);
+					store.writeFile(fileId, data);
 
 					fileCount++;
 
@@ -839,7 +980,7 @@ public final class StoreController implements Initializable {
 			protected Boolean call() throws Exception {
 				FileStore store = cache.getStore(selectedIndex);
 
-				store.writeFile(selectedFile, new byte[0], 0);
+				store.writeFile(selectedFile, new byte[0]);
 
 				double progress = 100.00;
 
@@ -864,9 +1005,9 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
-		final int selectedEntry = tableView.getSelectionModel().getSelectedIndex();
+		final int selectedEntryIndex = tableView.getSelectionModel().getSelectedIndex();
 
-		if (selectedEntry == -1) {
+		if (selectedEntryIndex == -1) {
 			return;
 		}
 
@@ -884,16 +1025,14 @@ public final class StoreController implements Initializable {
 
 				final byte[] data = Files.readAllBytes(selectedFile.toPath());
 
-				store.writeFile(selectedEntry, data, data.length);
+				store.writeFile(selectedEntryIndex, data);
 
 				final double progress = 100.00;
 
 				updateMessage(String.format("%.2f%s", progress, "%"));
 				updateProgress(1, 1);
 
-				Platform.runLater(() -> {
-					populateTable(selectedIndex);
-				});
+				Platform.runLater(() ->	populateTable(selectedIndex));
 				return true;
 			}
 
@@ -901,14 +1040,16 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void dumpEntry() {
-		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+	private void exportStoreEntries() {
+		final int selectedStoreIndex = listView.getSelectionModel().getSelectedIndex();
 
-		if (selectedIndex == -1 || cache == null) {
+		if (selectedStoreIndex == -1) {
 			return;
 		}
 
 		final List<Integer> selectedIndexes = tableView.getSelectionModel().getSelectedIndices();
+
+		final List<StoreEntryWrapper> wrappers = tableView.getSelectionModel().getSelectedItems();
 
 		final File selectedDirectory = Dialogue.directoryChooser().showDialog(stage);
 
@@ -920,24 +1061,27 @@ public final class StoreController implements Initializable {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedStoreIndex);
 
 				for (int i = 0; i < selectedIndexes.size(); i++) {
-					final int selectedEntryIndex = selectedIndexes.get(i);
+					final int selectedStoreEntryIndex = selectedIndexes.get(i);
 
-					ArchiveMeta meta = AppData.archiveMetas.get(selectedEntryIndex);
+					ArchiveMeta meta = AppData.archiveMetas.get(selectedStoreEntryIndex);
 
-					if (meta == null) {
+					if (meta == null && selectedStoreIndex == 0) {
 						continue;
 					}
 
-					ByteBuffer fileBuffer = store.readFile(selectedEntryIndex);
+					final StoreEntryWrapper wrapper = wrappers.get(i);
 
-					if (fileBuffer == null) {
+					ByteBuffer fileBuffer = store.readFile(selectedStoreEntryIndex);
+
+					if (fileBuffer == null || fileBuffer.remaining() == 0) {
+						System.out.println("detected 0");
 						return false;
 					}
 
-					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, meta.getFileName())).getChannel()) {
+					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, selectedStoreIndex == 0 ? meta.getFileName() : wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
 						channel.write(fileBuffer);
 					}
 
@@ -949,7 +1093,7 @@ public final class StoreController implements Initializable {
 				}
 
 				Platform.runLater(() -> {
-					populateTable(selectedIndex);
+					populateTable(selectedStoreIndex);
 
 					Dialogue.openDirectory("Would you like to view this file?", selectedDirectory);
 				});
@@ -960,11 +1104,11 @@ public final class StoreController implements Initializable {
 	}
 
 	@FXML
-	private void dumpIndex() {
+	private void exportFileStore() {
 
-		final int selectedIndex = listView.getSelectionModel().getSelectedIndex();
+		final int selectedStoreIndex = listView.getSelectionModel().getSelectedIndex();
 
-		if (selectedIndex == -1 || cache == null) {
+		if (selectedStoreIndex == -1) {
 			return;
 		}
 
@@ -974,11 +1118,17 @@ public final class StoreController implements Initializable {
 			return;
 		}
 
+		File outputDir = new File(selectedDirectory, "index" + selectedStoreIndex);
+
+		if (!outputDir.exists()) {
+			outputDir.mkdirs();
+		}
+
 		createTask(new Task<Boolean>() {
 
 			@Override
 			protected Boolean call() throws Exception {
-				final FileStore store = cache.getStore(selectedIndex);
+				final FileStore store = cache.getStore(selectedStoreIndex);
 
 				final int storeCount = store.getFileCount();
 
@@ -991,7 +1141,7 @@ public final class StoreController implements Initializable {
 
 					StoreEntryWrapper wrapper = data.get(i);
 
-					try(FileChannel channel = new FileOutputStream(new File(selectedDirectory, wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
+					try(FileChannel channel = new FileOutputStream(new File(outputDir, wrapper.getName() + "." + wrapper.getExtension())).getChannel()) {
 						channel.write(fileBuffer);
 					}
 
@@ -1002,9 +1152,7 @@ public final class StoreController implements Initializable {
 
 				}
 
-				Platform.runLater(() -> {
-					Dialogue.openDirectory("Would you like to open this directory?", selectedDirectory);
-				});
+				Platform.runLater(() -> Dialogue.openDirectory("Would you like to open this directory?", outputDir));
 				return true;
 			}
 
@@ -1048,12 +1196,10 @@ public final class StoreController implements Initializable {
 			@Override
 			protected Boolean call() throws Exception {
 				for (int i = 0; i < store.getFileCount(); i++) {
-					store.writeFile(i, new byte[0], 0);
+					store.writeFile(i, new byte[0]);
 				}
 
-				Platform.runLater(() -> {
-					populateTable(selectedIndex);
-				});
+				Platform.runLater(() ->	populateTable(selectedIndex));
 				return true;
 			}
 
@@ -1093,9 +1239,9 @@ public final class StoreController implements Initializable {
 		try {
 			FXMLLoader loader = new FXMLLoader(App.class.getResource("/ImageArchiveUI.fxml"));
 
-			Parent root = (Parent) loader.load();
+			Parent root = loader.load();
 
-			ImageArchiveController controller = (ImageArchiveController) loader.getController();
+			ImageArchiveController controller = loader.getController();
 
 			Stage stage = new Stage();
 
@@ -1131,6 +1277,15 @@ public final class StoreController implements Initializable {
 	private void clearProgram() {
 		indexes.clear();
 		data.clear();
+
+		try {
+			if (cache == null) {
+				return;
+			}
+			cache.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 	}
 
 	@FXML

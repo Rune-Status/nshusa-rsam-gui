@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.image.ImageView?>
@@ -31,11 +32,18 @@
       </VBox>
    </left>
    <center>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>
-            <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
-         </children>
-      </HBox>
+      <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" pannable="true" vbarPolicy="NEVER" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets bottom="5.0" right="5.0" />
+         </BorderPane.margin>
+         <content>
+            <VBox alignment="CENTER">
+               <children>
+                  <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </VBox>
+         </content>
+      </ScrollPane>
    </center>
    <top>
       <VBox>
